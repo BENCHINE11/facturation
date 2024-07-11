@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Releve extends Model
+{
+    use HasFactory;
+    protected $table = 'releves';
+
+    protected $fillable = [
+        'id_poste',
+        'periode_consommation',
+        'date_validation',
+        'index_mono1',
+        'index_mono2',
+        'index_mono3',
+        'index_triJ',
+        'index_triN',
+        'index_triP',
+        'index_reactif',
+        'indicateur_max',
+    ];
+}
