@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('telephone')->nullable();
             $table->smallInteger('caution');
             $table->string('min_garantie');
+            $table->enum('etat',['0','1']);
             $table->timestamps();
         });
     }

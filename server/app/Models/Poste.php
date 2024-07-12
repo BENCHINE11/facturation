@@ -15,4 +15,16 @@ class Poste extends Model
         'puissance_souscrite',
         'puissance_installee',
     ];
+    public function port()
+    {
+        return $this->belongsTo(Port::class, 'id_port');
+    }
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_client');
+    }
+    public function releve()
+    {
+        return $this->belongsTo(Releve::class, 'id_poste');
+    }
 }

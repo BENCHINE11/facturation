@@ -20,4 +20,12 @@ class Port extends Model
     {
         return $this->hasMany(User::class, 'id_port');
     }
+    public function region()
+    {
+        return $this->belongsTo(Region::class, 'id_region');
+    }
+    public function poste()
+    {
+        return $this->hasMany(Poste::class, 'id_port');
+    }
 }

@@ -14,4 +14,9 @@ class Region extends Model
         'libelle',
         'taxe_regionale',
     ];
+
+    public function port()
+    {
+        return $this->hasMany(Port::class, 'id_region');
+    }
 }

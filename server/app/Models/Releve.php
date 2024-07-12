@@ -23,4 +23,12 @@ class Releve extends Model
         'index_reactif',
         'indicateur_max',
     ];
+    public function poste()
+    {
+        return $this->belongsTo(Poste::class, 'id_poste');
+    }
+    public function facture()
+    {
+        return $this->hasOne(Port::class, 'id_releve');
+    }
 }

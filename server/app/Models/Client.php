@@ -19,5 +19,10 @@ class Client extends Model
         'telephone',
         'caution',
         'min_garantie',
+        'etat',
     ];
+    public function poste()
+    {
+        return $this->hasMany(Poste::class, 'id_client');
+    }
 }
