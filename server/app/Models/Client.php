@@ -12,12 +12,15 @@ class Client extends Model
 
     protected $fillable = [
         'ref_client',
-        'CIN',
-        'ICE',
+        'cin',
+        'ice',
         'raison_sociale',
         'adresse',
         'telephone',
-        'caution',
-        'min_garantie',
     ];
+
+    public function poste()
+    {
+        return $this->hasMany(Poste::class, 'id_client', 'id');
+    }
 }

@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('ports', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_region');
             $table->string('code_port')->unique();
-            $table->string('libelle');
+            $table->string('libelle_port');
+            $table->unsignedBigInteger('id_region');
             $table->foreign('id_region')->references('id')->on('regions');
             $table->timestamps();
         });

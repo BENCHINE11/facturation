@@ -16,9 +16,7 @@ return new class extends Migration
         Schema::create('factures', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_releve');
-            $table->date('mois_facturation');
-            $table->date('date_emission');
-            $table->enum('statut',['0','1','2']); //0 annulée; 1 crée; 2 payés;
+            $table->enum('statut',['0','1','2'])->default('1'); //0 annulée; 1 non encaissée; 2 encaissée;
             $table->float('puissance_appelee');
             $table->float('cos_phi');
             $table->float('total_HT');

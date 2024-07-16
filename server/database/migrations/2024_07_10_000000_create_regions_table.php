@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('regions', function (Blueprint $table) {
             $table->id();
             $table->string('code_region');
-            $table->string('libelle');
-            $table->float('taxe_regionale');
+            $table->string('libelle_region');
+            $table->decimal('taxe_regionale', 8, 3);
             $table->timestamps();
         });
     }

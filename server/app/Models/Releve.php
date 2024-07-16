@@ -13,7 +13,6 @@ class Releve extends Model
     protected $fillable = [
         'id_poste',
         'periode_consommation',
-        'date_validation',
         'index_mono1',
         'index_mono2',
         'index_mono3',
@@ -23,4 +22,10 @@ class Releve extends Model
         'index_reactif',
         'indicateur_max',
     ];
+
+    public function poste()
+    {
+        return $this->belongsTo(Poste::class, 'id_poste');
+    }
+
 }

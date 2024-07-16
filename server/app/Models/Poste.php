@@ -12,7 +12,21 @@ class Poste extends Model
     protected $fillable = [
         'id_port',
         'id_client',
+        'ref_poste',
         'puissance_souscrite',
         'puissance_installee',
+        'caution',
+        'min_garanti',
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_client');
+    }
+
+    public function port()
+    {
+        return $this->belongsTo(Port::class, 'id_port');
+    }
+
 }

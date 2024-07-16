@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('telephone')->nullable();
             $table->enum('role',['admin','infra','finance','facturation']);
-            $table->enum('etat',['0','1']);
+            $table->enum('etat',['0','1'])->default('1');
+            $table->timestamp('canceled_at')->nullable();
             $table->foreign('id_port')->references('id')->on('ports');
             $table->rememberToken();
             $table->timestamps();
