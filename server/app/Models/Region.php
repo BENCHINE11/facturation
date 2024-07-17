@@ -9,14 +9,16 @@ class Region extends Model
 {
     use HasFactory;
     protected $table = 'regions';
+
     protected $fillable = [
         'code_region',
-        'libelle',
+        'libelle_region',
         'taxe_regionale',
     ];
 
     public function port()
     {
-        return $this->hasMany(Port::class, 'id_region');
+        return $this->hasMany(Port::class, 'id_region', 'id');
     }
+
 }

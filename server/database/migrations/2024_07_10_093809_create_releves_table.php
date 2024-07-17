@@ -16,8 +16,7 @@ return new class extends Migration
         Schema::create('releves', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_poste');
-            $table->date('periode_consommation');
-            $table->date('date_validation');
+            $table->string('periode_consommation');
             $table->float('index_mono1');
             $table->float('index_mono2');
             $table->float('index_mono3');

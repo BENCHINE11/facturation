@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Models\Port;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -15,10 +16,19 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user=User::all();
-        return response()->json(
-            $user
-        );
+        $users = User::with('port')->get();
+        return view('users.index', compact('users'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $ports = Port::all();
+        return view('users.create', compact('ports'));
     }
 
     /**
@@ -29,40 +39,88 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $input = $request->all();
+        User::create($input);
+        return redirect('users')->with('flash_message', 'User Added!!');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\User  $user
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($id)
     {
-        //
+        $users = User::find($id);
+        return view('users.show')->with('users', $users);
+    }
+
+/**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $users = User::find($id);
+        $ports = Port::all(); 
+        return view('users.edit', compact('users', 'ports'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
-        //
+        $users = User::find($id);
+        $input = $request->all();
+        $users->update($input);
+        return redirect('users')->with('flash_message', 'Utlilisateur modifié avec Succès!');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\User  $user
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(User $user)
     {
-        //
+        if ($user->etat == '1'){
+        $user->etat = '0';
+        $user->save();
+        return redirect('users')->with('flash_message', 'Utilisateur désactivé avec succès!');
+        }
+        else{
+        $user->etat = '1';
+        $user->save();
+        return redirect('users')->with('flash_message', 'Utilisateur activé avec succès!');
+        }
     }
+    public function deleteUser($id)
+    {
+    $user = User::find($id);
+
+    if ($user) {
+        $user->delete();
+        return redirect('users')->with('flash_message', 'Utilisateur supprimé avec succès!');
+    }
+
+    return redirect('users')->with('error_message', 'Utilisateur non trouvé!');
+    }
+
+    // public function enable(User $user)
+    // {
+    //     $user->etat = '1';
+    //     $user->save();
+    //     return redirect('users')->with('flash_message', 'Utilisateur activé avec succès!');
+
+    // }
+    
 }
