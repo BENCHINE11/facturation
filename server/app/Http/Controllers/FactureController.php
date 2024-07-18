@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Facture;
+use App\Models\Poste;
+use App\Models\Releve;
 use Illuminate\Http\Request;
 
 class FactureController extends Controller
@@ -26,7 +28,9 @@ class FactureController extends Controller
      */
     public function create()
     {
-        //
+        $releves = Releve::all(); 
+        $postes = Poste::with('releves')->get();
+        return view('factures.create', compact('releves','postes'));
     }
 
     /**

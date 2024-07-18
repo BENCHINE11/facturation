@@ -2,7 +2,7 @@
 @section('content')
 
 <div class="card" style="margin:20px;">
-    <div class="card-header">Client Infos</div>
+    <div class="card-header">Informations Client</div>
     <div class="card-body">
         <h5 class="card-text" align="">{{ $clients->raison_sociale }}</h5>
         <p class="card-title">Code Client : {{ $clients->ref_client }}</p>

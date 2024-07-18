@@ -2,7 +2,7 @@
 @section('content')
 
 <div class="card" style="margin:20px;">
-    <div class="card-header"><h1><b>Create New Client</b></h1></div>
+    <div class="card-header"><h1><b>Créer Nouveau Client</b></h1></div>
 
     <div class="card-body">
 

@@ -29,4 +29,9 @@ class Poste extends Model
         return $this->belongsTo(Port::class, 'id_port');
     }
 
+    public function releves()
+    {
+        return $this->hasMany(Releve::class, 'id_poste');
+    }
+
 }

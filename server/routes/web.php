@@ -5,6 +5,7 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortController;
 use App\Http\Controllers\PosteController;
+use App\Http\Controllers\PrestationController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ReleveController;
 use App\Http\Controllers\UserController;
@@ -40,3 +41,4 @@ Route::resource('/releves', ReleveController::class);
 
 Route::resource('/factures', FactureController::class);
 
+Route::resource('/prestations', PrestationController::class);

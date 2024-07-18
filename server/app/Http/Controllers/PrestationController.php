@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Client;
+use App\Models\Prestation;
 use Illuminate\Http\Request;
 
-class ClientController extends Controller
+class PrestationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,8 +15,8 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::all();
-        return view('clients.index')->with('clients', $clients);
+        $prestations = Prestation::all();
+        return view('prestations.index')->with('prestations', $prestations);
     }
 
     /**
@@ -26,8 +26,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        return view('clients.create');
-        //
+        return view('prestations.create');
     }
 
     /**
@@ -39,8 +38,8 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        Client::create($input);
-        return redirect('clients')->with('flash_message', 'Client Added!!');
+        Prestation::create($input);
+        return redirect('prestations')->with('flash_message', 'Prestation Ajoutée!');
     }
 
     /**
@@ -51,8 +50,8 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        $clients = Client::find($id);
-        return view('clients.show')->with('clients', $clients);
+        $prestations = Prestation::find($id);
+        return view('prestations.show')->with('prestations', $prestations);
     }
 
     /**
@@ -63,8 +62,8 @@ class ClientController extends Controller
      */
     public function edit($id)
     {
-        $clients = Client::find($id);
-        return view('clients.edit')->with('clients', $clients);
+        $prestations = Prestation::find($id);
+        return view('prestations.edit')->with('prestations', $prestations);
     }
 
     /**
@@ -76,10 +75,10 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $client = Client::find($id);
+        $prestation = Prestation::find($id);
         $input = $request->all();
-        $client->update($input);
-        return redirect('clients')->with('flash_message', 'Client Mis à Jour Avec Succès!');
+        $prestation->update($input);
+        return redirect('prestations')->with('flash_message', 'Prestation Mise à Jour Avec Succès!');
     }
 
     /**
@@ -90,7 +89,7 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        Client::destroy($id);
-        return redirect('clients')->with('flash_message', 'Client supprimé!');
+        Prestation::destroy($id);
+        return redirect('prestations')->with('flash_message', 'Prestation supprimée!');
     }
 }

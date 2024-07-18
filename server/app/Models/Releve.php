@@ -28,4 +28,9 @@ class Releve extends Model
         return $this->belongsTo(Poste::class, 'id_poste');
     }
 
+    public function facture()
+    {
+        return $this->belongsTo(Facture::class);
+    }
+
 }

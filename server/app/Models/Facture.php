@@ -20,4 +20,9 @@ class Facture extends Model
         'total_TVA',
         'total_TTC',
     ];
+
+    public function releve()
+    {
+        return $this->belongsTo(Releve::class, 'id_releve');
+    }
 }
