@@ -31,7 +31,7 @@
                                             <td>{{ $facture->releve->periode_consommation }}</td>
                                             <td>{{ $facture->created_at }}</td>
                                             <td>{{ $facture->total_TTC }}</td>
-                                            <td>{{ $facture->ref_poste }}</td>
+                                            <td>{{ $facture->releve->poste->ref_poste }}</td>
                                             <td>
                                                 @if ($facture->statut == 0)
                                                     <span style="color: red;">Annulée</span>
