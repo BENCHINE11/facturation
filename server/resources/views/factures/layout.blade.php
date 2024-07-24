@@ -9,9 +9,16 @@
 <body>
     
 <div class="container">
+    
         @if (session('flash_message'))
             <div class="alert alert-success mt-4">
                 {{ session('flash_message') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
             </div>
         @endif
         @yield('content')

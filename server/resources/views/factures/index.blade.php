@@ -18,7 +18,7 @@
                                         <th>#</th>
                                         <th>Mois de Consommation</th>
                                         <th>Emise Le</th>
-                                        <th>Montant TTC</th>
+                                        <th>Total TTC</th>
                                         <th>Poste</th>
                                         <th>Statut</th>
                                         <th>Actions</th>
@@ -28,7 +28,7 @@
                                     @foreach ($factures as $facture)
                                         <tr>
                                             <td>{{ $facture->id }}</td>
-                                            <td>{{ $facture->releve->periode_consommation }}</td>
+                                            <!-- <td>{{ $facture->releve->mois }} / {{ $facture->releve->annee }}</td> -->
                                             <td>{{ $facture->created_at }}</td>
                                             <td>{{ $facture->total_TTC }}</td>
                                             <td>{{ $facture->releve->poste->ref_poste }}</td>

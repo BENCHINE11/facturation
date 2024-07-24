@@ -12,7 +12,8 @@ class Releve extends Model
 
     protected $fillable = [
         'id_poste',
-        'periode_consommation',
+        'mois',
+        'annee',
         'index_mono1',
         'index_mono2',
         'index_mono3',

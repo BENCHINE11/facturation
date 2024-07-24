@@ -1,173 +1,197 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Facture;
+use App\Models\Poste;
 use App\Models\Releve;
-use Illuminate\Http\Request;
 use App\Models\Prestation;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class FactureController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $factures = Facture::orderBy('created_at')->get();
         return view('factures.index', compact('factures'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        //
+        $postes = Poste::all();
+        $recentReleve = Releve::latest()->first();
+
+        if (!$recentReleve) {
+            return redirect()->back()->with('error', 'Aucun relevé trouvé. Veuillez ajouter un relevé avant de créer une facture.');
+        }
+
+        list($currentReleve, $lastMonthReleve) = $this->getReleves($recentReleve->mois, $recentReleve->annee);
+        if (!$currentReleve) {
+            return redirect()->back()->with('error', 'Les relevés nécessaires ne sont pas disponibles.');
+        }
+
+        list($consommationJour, $consommationNuit, $consommationPointe, $consommationReactif) = $this->calculateConsommations($currentReleve, $lastMonthReleve);
+        list($cr_jour, $cr_nuit, $cr_pointe) = $this->calculateCr($consommationJour, $consommationNuit, $consommationPointe);
+
+        $e_active = $this->calculateEnergieActive($currentReleve, $lastMonthReleve, $cr_jour, $cr_nuit, $cr_pointe);
+
+        $tg_phi = $consommationReactif / array_sum($e_active['actuel']);
+        $cos_phi = sqrt(1 / (1 + pow($tg_phi, 2)));
+        $pa = $currentReleve->indicateur_max / $cos_phi;
+        $rp = $currentReleve->poste->puissance_souscrite;
+        $rdps = $pa > $rp ? ($pa - $rp) : 0;
+
+        $prestations = Prestation::whereIn('code', [
+            '080101', '080102', '080121', '080103', '080108',
+            '080104', '080105', '080106', '080112'
+        ])->get()->keyBy('code');
+
+        list($total_HT, $total_TVA, $total_TR, $total_TTC) = $this->calculateTotals($e_active['actuel'], $rdps, $cos_phi, $prestations, $currentReleve);
+
+        return view('factures.create', compact(
+            'postes', 
+            'recentReleve', 
+            'consommationJour', 
+            'consommationNuit', 
+            'consommationPointe', 
+            'consommationReactif', 
+            'pa', 
+            'cos_phi', 
+            'e_active_jour_actuel',
+            'e_active_nuit_actuel', 
+            'e_active_pointe_actuel', 
+            'v',
+            'total_HT',
+            'total_TVA',
+            'total_TR',
+            'total_TTC'
+        ));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $factures = Facture::find($id);
-        return view('factures.show')->with('factures', $factures);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    public function createFactureFromReleve($id_releve)
-    {
-        // Récupérer le relevé
-        $releve = Releve::findOrFail($id_releve);
-
-        // Calculer les différentes valeurs nécessaires
-        $c_jour = $releve->index_triJ;
-        $c_nuit = $releve->index_triN;
-        $c_pointe = $releve->index_triP;
-        $c_reactif = $releve->index_reactif;
-
-        $cr_jour = ($c_jour / ($c_jour + $c_nuit + $c_pointe)) * 100;
-        $cr_nuit = ($c_nuit / ($c_jour + $c_nuit + $c_pointe)) * 100;
-        $cr_pointe = ($c_pointe / ($c_jour + $c_nuit + $c_pointe)) * 100;
-
-        $e_rev_jour = ($releve->index_mono1 + $releve->index_mono2 + $releve->index_mono3) * $cr_jour / 100;
-        $e_rev_nuit = ($releve->index_mono1 + $releve->index_mono2 + $releve->index_mono3) * $cr_nuit / 100;
-        $e_rev_pointe = ($releve->index_mono1 + $releve->index_mono2 + $releve->index_mono3) * $cr_pointe / 100;
-
-        $ccd_globale = 0; // Valeur à définir
-
-        $cbt_jour = $ccd_globale * $cr_jour / 100;
-        $cbt_nuit = $ccd_globale * $cr_nuit / 100;
-        $cbt_pointe = $ccd_globale * $cr_pointe / 100;
-
-        $e_active_jour = $e_rev_jour - $cbt_jour;
-        $e_active_nuit = $e_rev_nuit - $cbt_nuit;
-        $e_active_pointe = $e_rev_pointe - $cbt_pointe;
-
-        $tg_phi = $c_reactif / ($e_active_jour + $e_active_nuit + $e_active_pointe);
-        $cos_phi = sqrt(1 / (1 + pow($tg_phi, 2)));
-
-        $i_max = $releve->indicateur_max;
-        $pa = $i_max / $cos_phi;
-
-        // Tarifs des prestations (à adapter selon les prestations en base de données)
-        $tarif_eaj = 1.0332;
-        $tarif_ean = 1.0448;
-        $tarif_eap = 1.4448;
-        $tarif_rp = 0.8410;
-        $tarif_v = 0.8410;
-
-        $eaj = $e_active_jour * $tarif_eaj;
-        $ean = $e_active_nuit * $tarif_ean;
-        $eap = $e_active_pointe * $tarif_eap;
-        $rp = $releve->poste->puissance_souscrite * $tarif_rp;
-
-        $rdps = 0;
-        if ($pa > $releve->poste->puissance_souscrite) { // Puissance souscrite
-            $rdps = ($pa - $releve->poste->puissance_souscrite) * $tarif_rp;
-        }
-
-        $v = 0;
-        if ($cos_phi < 0.8) {
-            $v = 2 * (0.8 - $cos_phi) * ($eaj + $ean + $eap + $rp + $rdps) * $tarif_v;
-        }
-
-        // Total HT
-        $total_ht = $eaj + $ean + $eap + $rp + $v;
-
-        // Calculs de TVA et autres taxes
-        $tva = $total_ht * 0.2; // 20% de TVA
-        $tr = $total_ht * 0.03; // 3% de taxe régionale
-
-        $total_ttc = $total_ht + $tva + $tr;
-
-        // Créer la facture
-        $facture = new Facture([
-            'id_releve' => $id_releve,
-            'statut' => '1', // non encaissée
-            'puissance_appelee' => $pa,
-            'cos_phi' => $cos_phi,
-            'total_HT' => $total_ht,
-            'total_TVA' => $tva,
-            'total_TTC' => $total_ttc,
+        $request->validate([
+            'poste_id' => 'required|exists:postes,id',
         ]);
 
-        $facture->save();
+        $recentReleve = Releve::latest()->first();
+        list($currentReleve, $lastMonthReleve) = $this->getReleves($recentReleve->mois, $recentReleve->annee);
 
-        return redirect()->route('factures.show', $facture->id)->with('success', 'Facture créée avec succès!');
+        if (!$currentReleve || !$lastMonthReleve) {
+            return redirect()->back()->with('error', 'Les relevés nécessaires ne sont pas disponibles.');
+        }
+
+        list($consommationJour, $consommationNuit, $consommationPointe, $consommationReactif) = $this->calculateConsommations($currentReleve, $lastMonthReleve);
+        list($cr_jour, $cr_nuit, $cr_pointe) = $this->calculateCr($consommationJour, $consommationNuit, $consommationPointe);
+
+        $e_active = $this->calculateEnergieActive($currentReleve, $lastMonthReleve, $cr_jour, $cr_nuit, $cr_pointe);
+
+        $tg_phi = $consommationReactif / array_sum($e_active['actuel']);
+        $cos_phi = sqrt(1 / (1 + pow($tg_phi, 2)));
+        $pa = $currentReleve->indicateur_max / $cos_phi;
+        $rp = $currentReleve->poste->puissance_souscrite;
+        $rdps = $pa > $rp ? ($pa - $rp) : 0;
+
+        $prestations = Prestation::whereIn('code', [
+            '080101', '080102', '080121', '080103', '080108',
+            '080104', '080105', '080106', '080112'
+        ])->get()->keyBy('code');
+
+        list($total_HT, $total_TVA, $total_TR, $total_TTC) = $this->calculateTotals($e_active['actuel'], $rdps, $cos_phi, $prestations, $currentReleve);
+
+        $facture = Facture::create([
+            'id_releve' => $currentReleve->id,
+            'id_poste' => $request->poste_id,
+            'statut' => '1', 
+            'cos_phi' => $cos_phi,
+            'total_HT' => $total_HT,
+            'total_TVA' => $total_TVA,
+            'total_TR' => $total_TR,
+            'total_TTC' => $total_TTC,
+            'mois' => $currentReleve->mois,
+            'annee' => $currentReleve->annee,
+            'consommation_jour' => $consommationJour,
+            'consommation_nuit' => $consommationNuit,
+            'consommation_pointe' => $consommationPointe,
+            'consommation_reactif' => $consommationReactif,
+            'pa' => $pa,
+            'e_active_jour_actuel' => $e_active['actuel'][0],
+            'e_active_nuit_actuel' => $e_active['actuel'][1],
+            'e_active_pointe_actuel' => $e_active['actuel'][2],
+            'rdps' => $rdps,
+            'eaj_actuel' => $e_active['actuel'][3],
+            'ean_actuel' => $e_active['actuel'][4],
+            'eap_actuel' => $e_active['actuel'][5],
+        ]);
+
+        return redirect()->route('factures.index')->with('success', 'Facture créée avec succès.');
+    }
+
+    private function getReleves($currentMonth, $currentYear)
+    {
+        $currentReleve = Releve::where('mois', $currentMonth)
+                                ->where('annee', $currentYear)
+                                ->first();
+
+        $lastMonthReleve = Releve::where('mois', '<', $currentMonth)
+                                ->where('annee', $currentYear)
+                                ->orWhere(function($query) use ($currentMonth, $currentYear) {
+                                    $query->where('mois', '=', 12)
+                                        ->where('annee', '=', $currentYear - 1);
+                                })
+                                ->orderBy('mois', 'desc')
+                                ->first();
+        
+        return [$currentReleve, $lastMonthReleve];
+    }
+
+    private function calculateConsommations($currentReleve, $lastMonthReleve)
+    {
+        $consommationJour = $currentReleve->index_jour - $lastMonthReleve->index_jour;
+        $consommationNuit = $currentReleve->index_nuit - $lastMonthReleve->index_nuit;
+        $consommationPointe = $currentReleve->index_pointe - $lastMonthReleve->index_pointe;
+        $consommationReactif = $currentReleve->index_reactif - $lastMonthReleve->index_reactif;
+
+        return [$consommationJour, $consommationNuit, $consommationPointe, $consommationReactif];
+    }
+
+    private function calculateCr($consommationJour, $consommationNuit, $consommationPointe)
+    {
+        $cr_jour = $consommationJour * 0.03;
+        $cr_nuit = $consommationNuit * 0.02;
+        $cr_pointe = $consommationPointe * 0.1;
+
+        return [$cr_jour, $cr_nuit, $cr_pointe];
+    }
+
+    private function calculateEnergieActive($currentReleve, $lastMonthReleve, $cr_jour, $cr_nuit, $cr_pointe)
+    {
+        $e_active_jour_actuel = ($currentReleve->index_jour + $cr_jour) - ($lastMonthReleve->index_jour + $cr_jour);
+        $e_active_nuit_actuel = ($currentReleve->index_nuit + $cr_nuit) - ($lastMonthReleve->index_nuit + $cr_nuit);
+        $e_active_pointe_actuel = ($currentReleve->index_pointe + $cr_pointe) - ($lastMonthReleve->index_pointe + $cr_pointe);
+
+        return [
+            'actuel' => [$e_active_jour_actuel, $e_active_nuit_actuel, $e_active_pointe_actuel, $e_active_jour_actuel, $e_active_nuit_actuel, $e_active_pointe_actuel]
+        ];
+    }
+
+    private function calculateTotals($e_active_actuel, $rdps, $cos_phi, $prestations, $currentReleve)
+    {
+        $total_HT = array_sum([
+            $e_active_actuel[0] * $prestations['080101']->tarif,
+            $e_active_actuel[1] * $prestations['080102']->tarif,
+            $e_active_actuel[2] * $prestations['080121']->tarif,
+            $rdps * $prestations['080103']->tarif,
+            $currentReleve->post_releve * $prestations['080108']->tarif,
+        ]);
+
+        $total_TVA = $total_HT * $prestations['080104']->tarif;
+        $total_TR = $total_HT * $prestations['080105']->tarif;
+        $total_TTC = $total_HT + $total_TVA + $total_TR;
+
+        return [$total_HT, $total_TVA, $total_TR, $total_TTC];
     }
 }
+
+?>
