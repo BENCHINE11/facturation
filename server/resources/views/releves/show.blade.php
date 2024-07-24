@@ -3,8 +3,8 @@
 
 <div class="card" style="margin:20px;">
     <div class="card-header">Informations du Relevé</div>
-    <div class="card-body">
-        <h5 class="card-title" align="">Mois de consommation : {{ $releves->periode_consommation }}</h5>
+    <div class="card-body" align="center">
+        <h5 class="card-title">Mois de consommation : {{ $releves->periode_consommation }}</h5>
         <p class="card-text">Reference du poste {{ $releves->poste->ref_poste }}</p>
         <ul>
             <li><p class="card-text">Index Monophasé 1 : {{ $releves->index_mono1 }}</p></li>

@@ -56,28 +56,17 @@ class UserController extends Controller
         return view('users.show')->with('users', $users);
     }
 
-    /**
+/**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-
-    public function updateEtat(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-        $etat = $request->input('etat');
-    
-        // Mettre à jour l'état de compte
-        $user->etat = $etat;
-        $user->save();
-    
-        return redirect()->route('users.show', ['id' => $id])->with('flash_message', 'Etat de compte mis à jour!');
-    }     
-
     public function edit($id)
     {
-        //
+        $users = User::find($id);
+        $ports = Port::all(); 
+        return view('users.edit', compact('users', 'ports'));
     }
 
     /**
@@ -89,7 +78,10 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $users = User::find($id);
+        $input = $request->all();
+        $users->update($input);
+        return redirect('users')->with('flash_message', 'Utlilisateur modifié avec Succès!');
     }
 
     /**
@@ -100,10 +92,35 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        if ($user->etat == '1'){
         $user->etat = '0';
         $user->save();
         return redirect('users')->with('flash_message', 'Utilisateur désactivé avec succès!');
-
+        }
+        else{
+        $user->etat = '1';
+        $user->save();
+        return redirect('users')->with('flash_message', 'Utilisateur activé avec succès!');
+        }
     }
+    public function deleteUser($id)
+    {
+    $user = User::find($id);
+
+    if ($user) {
+        $user->delete();
+        return redirect('users')->with('flash_message', 'Utilisateur supprimé avec succès!');
+    }
+
+    return redirect('users')->with('error_message', 'Utilisateur non trouvé!');
+    }
+
+    // public function enable(User $user)
+    // {
+    //     $user->etat = '1';
+    //     $user->save();
+    //     return redirect('users')->with('flash_message', 'Utilisateur activé avec succès!');
+
+    // }
     
 }

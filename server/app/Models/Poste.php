@@ -28,10 +28,15 @@ class Poste extends Model
     {
         return $this->belongsTo(Port::class, 'id_port');
     }
-
-    public function releves()
+    
+    public function releve()
     {
-        return $this->hasMany(Releve::class, 'id_poste');
+        return $this->belongsTo(Releve::class, 'id_poste');
+    }
+
+    public function factures()
+    {
+        return $this->hasMany(Facture::class, 'id_poste');
     }
 
 }

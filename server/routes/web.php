@@ -9,6 +9,7 @@ use App\Http\Controllers\PrestationController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ReleveController;
 use App\Http\Controllers\UserController;
+use App\Models\Prestation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +30,8 @@ Route::resource('/clients', ClientController::class);
 
 Route::resource('/users', UserController::class);
 Route::patch('/users/{id}', [UserController::class, 'updateEtat']);
-Route::post('/users/toggle-status/{id}', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']);
+
 
 Route::resource('/ports', PortController::class);
 
@@ -39,6 +41,9 @@ Route::resource('/regions', RegionController::class);
 
 Route::resource('/releves', ReleveController::class);
 
+Route::resource('/prestations', PrestationController::class);
+
 Route::resource('/factures', FactureController::class);
 
-Route::resource('/prestations', PrestationController::class);
+Route::get('/factures/create/{id_releve}', [FactureController::class, 'createFactureFromReleve'])->name('factures.createFromReleve');
+

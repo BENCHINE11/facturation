@@ -12,7 +12,8 @@ class Releve extends Model
 
     protected $fillable = [
         'id_poste',
-        'periode_consommation',
+        'mois',
+        'annee',
         'index_mono1',
         'index_mono2',
         'index_mono3',
@@ -27,10 +28,9 @@ class Releve extends Model
     {
         return $this->belongsTo(Poste::class, 'id_poste');
     }
-
     public function facture()
     {
-        return $this->belongsTo(Facture::class);
+        return $this->hasOne(Port::class, 'id_releve');
     }
 
 }

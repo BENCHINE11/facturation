@@ -26,7 +26,7 @@
                                     @foreach ($releves as $releve)
                                         <tr>
                                             <td>{{ $releve->id }}</td>
-                                            <td>{{ $releve->periode_consommation }}</td>
+                                            <td>{{ $releve->mois }} / {{ $releve->annee }}</td>
                                             <td>{{ $releve->created_at }}</td>
                                             <td>{{ $releve->poste->ref_poste }}</td>
                                             <td>
@@ -34,7 +34,7 @@
                                                 <form method="POST" action="{{ url('/releves' . '/' . $releve->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé" onclick="return confirm("Confirmer supression?")"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
                                                 </form>
                                             </td>
                                         </tr>

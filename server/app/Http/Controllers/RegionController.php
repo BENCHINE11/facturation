@@ -40,7 +40,7 @@ class RegionController extends Controller
     {
         $input = $request->all();
         Region::create($input);
-        return redirect('regions')->with('flash_message', 'Region Added!!');
+        return redirect('regions')->with('flash_message', 'Region ajoutée !');
         //
     }
 
@@ -81,7 +81,7 @@ class RegionController extends Controller
         $region = Region::find($id);
         $input = $request->all();
         $region->update($input);
-        return redirect('regions')->with('flash_message', 'Region Updated Successfully!');
+        return redirect('regions')->with('flash_message', 'Region modifié avec succes !');
     }
 
     /**
@@ -93,6 +93,6 @@ class RegionController extends Controller
     public function destroy($id)
     {
         Region::destroy($id);
-        return redirect('regions')->with('flash_message', 'Region deleted!');
+        return redirect('regions')->with('flash_message', 'Region supprimée !');
     }
 }

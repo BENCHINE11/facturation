@@ -11,13 +11,42 @@ class Facture extends Model
     protected $table = 'factures';
     protected $fillable = [
         'id_releve',
-        'mois_facturation',
-        'date_emission',
+        'id_poste',
         'statut',
-        'puissance_appelee',
+
+        'mois',
+        'annee',
+
+        'consommation_jour',
+        'consommation_nuit',
+        'consommation_pointe',
+        'consommation_reactif',
+
+        'e_active_jour_ancien',
+        'e_active_nuit_ancien',
+        'e_active_pointe_ancien',
+
+        'e_active_jour_actuel',
+        'e_active_nuit_actuel',
+        'e_active_pointe_actuel',
+
+        'pa',
         'cos_phi',
+
+        'rdps',
+        'v',
+
+        'eaj_actuel',
+        'ean_actuel',
+        'eap_actuel',
+
+        'eaj_ancien',
+        'ean_ancien',
+        'eap_ancien',
+        
         'total_HT',
         'total_TVA',
+        'total_TR',
         'total_TTC',
     ];
 
@@ -25,4 +54,10 @@ class Facture extends Model
     {
         return $this->belongsTo(Releve::class, 'id_releve');
     }
+
+    public function poste()
+    {
+        return $this->belongsTo(Poste::class, 'id_poste');
+    }
+
 }

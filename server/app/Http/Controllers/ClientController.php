@@ -40,7 +40,7 @@ class ClientController extends Controller
     {
         $input = $request->all();
         Client::create($input);
-        return redirect('clients')->with('flash_message', 'Client Added!!');
+        return redirect('clients')->with('flash_message', 'Client Ajouté !');
     }
 
     /**
@@ -51,7 +51,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        $clients = Client::find($id);
+        $clients = Client::with('poste')->find($id);
         return view('clients.show')->with('clients', $clients);
     }
 
@@ -79,7 +79,7 @@ class ClientController extends Controller
         $client = Client::find($id);
         $input = $request->all();
         $client->update($input);
-        return redirect('clients')->with('flash_message', 'Client Mis à Jour Avec Succès!');
+        return redirect('clients')->with('flash_message', 'Client Modifié avec succes !');
     }
 
     /**
@@ -91,6 +91,6 @@ class ClientController extends Controller
     public function destroy($id)
     {
         Client::destroy($id);
-        return redirect('clients')->with('flash_message', 'Client supprimé!');
+        return redirect('clients')->with('flash_message', 'Client supprimé !');
     }
 }

@@ -32,12 +32,12 @@
                                             <td>{{ $client->ice }}</td>
                                             <td>{{ $client->telephone }}</td>
                                             <td>
-                                                <a href="{{ url('/clients/' . $client->id)}}" title="Voir Client"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
-                                                <a href="{{ url('/clients/' . $client->id . '/edit')}}" title="Modifier Client"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
+                                                <a href="{{ url('/clients/' . $client->id)}}" title="View Client"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Afficher</button></a>
+                                                <a href="{{ url('/clients/' . $client->id . '/edit')}}" title="Edit Client"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
                                                 <form method="POST" action="{{ url('/clients' . '/' . $client->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Client" onclick="return confirm('Confirmer supression?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete Client"><i class="fa fa-trash-o" aria-hidden="true"></i>Supprimer</button>                            
                                                 </form>
                                             </td>
                                         </tr>

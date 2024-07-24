@@ -2,7 +2,7 @@
 @section('content')
 
 <div class="card" style="margin:20px;">
-    <div class="card-header"><h1><b>Create New User</b></h1></div>
+    <div class="card-header"><h1><b>Créer Utilisateur</b></h1></div>
 
     <div class="card-body">
 
@@ -25,13 +25,13 @@
                 @endforeach
             </select><br><br>
             <label for="">Role</label>
-            <select id="role">
+            <select id="role" name="role">
                 <option value="admin">Administrateur</option>
                 <option value="infra">Infrastructure</option>
                 <option value="finance">Finance</option>
                 <option value="facturation">Facturation</option>
             </select><br><br>
-            <input type="submit" value="Save" class="btn btn-success"><br>
+            <input type="submit" value="Ajouter" class="btn btn-success"><br>
         </form>
     </div>
 </div>

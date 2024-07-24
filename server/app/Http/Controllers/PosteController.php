@@ -43,7 +43,7 @@ class PosteController extends Controller
     {
         $input = $request->all();
         Poste::create($input);
-        return redirect('postes')->with('flash_message', 'Poste Ajouté!');
+        return redirect('postes')->with('flash_message', 'Poste Ajouté !');
     }
 
     /**
@@ -84,7 +84,7 @@ class PosteController extends Controller
         $postes = Poste::find($id);
         $input = $request->all();
         $postes->update($input);
-        return redirect('postes')->with('flash_message', 'Poste Mis à Jour avec Succès!');
+        return redirect('postes')->with('flash_message', 'Poste modifié avec succes!');
     }
 
     /**
@@ -96,6 +96,6 @@ class PosteController extends Controller
     public function destroy($id)
     {
         Poste::destroy($id);
-        return redirect('postes')->with('flash_message', 'Poste Supprimé avec Succès');
+        return redirect('postes')->with('flash_message', 'Poste supprimé');
     }
 }

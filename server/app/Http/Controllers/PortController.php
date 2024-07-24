@@ -41,7 +41,7 @@ class PortController extends Controller
     {
         $input = $request->all();
         Port::create($input);
-        return redirect('ports')->with('flash_message', 'Port Added!!');
+        return redirect('ports')->with('flash_message', 'Port ajouté !');
     }
 
 
@@ -82,7 +82,7 @@ class PortController extends Controller
         $ports = Port::find($id);
         $input = $request->all();
         $ports->update($input);
-        return redirect('ports')->with('flash_message', 'Port Updated Successfully!');
+        return redirect('ports')->with('flash_message', 'Port modifié avec succes !');
     }
 
     /**

@@ -41,7 +41,7 @@ class ReleveController extends Controller
     {
         $input = $request->all();
         Releve::create($input);
-        return redirect('releves')->with('flash_message', 'Relevé Ajouté!');
+        return redirect('releves')->with('flash_message', 'Relevé ajouté !');
     }
 
     /**
@@ -93,6 +93,6 @@ class ReleveController extends Controller
     public function destroy($id)
     {
         Releve::destroy($id);
-        return redirect('releves')->with('flash_message', 'Relevé Supprimé!');
+        return redirect('releves')->with('flash_message', 'Relevé supprimé!');
     }
 }

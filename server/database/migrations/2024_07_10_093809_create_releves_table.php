@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('releves', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_poste');
-            $table->string('periode_consommation');
+            $table->integer('mois')->default(1); // Nouvelle colonne pour le mois
+            $table->integer('annee')->default(2024); // Nouvelle colonne pour l'année
             $table->float('index_mono1');
             $table->float('index_mono2');
             $table->float('index_mono3');

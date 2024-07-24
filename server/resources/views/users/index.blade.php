@@ -44,10 +44,23 @@
                                             <td>
                                                 <a href="{{ url('/users/' . $user->id)}}" title="View User"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
                                                 <a href="{{ url('/users/' . $user->id . '/edit')}}" title="Edit User"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
+                                                @if ($user->etat == 1)
                                                 <form method="POST" action="{{ url('/users' . '/' . $user->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
                                                     <button type="submit" class="btn btn-danger btn-sm" title="Delete User" onclick=""><i class="fa fa-trash-o" aria-hidden="true"></i> Désactiver</button>                            
+                                                </form>
+                                                @else
+                                                <form method="POST" action="{{ url('/users' . '/' . $user->id) }}" accept-charset="UTF-8" style="display:inline">
+                                                    {{ method_field('DELETE') }}
+                                                    {{ csrf_field() }}
+                                                    <button type="submit" class="btn btn-success btn-sm" title="Activate User" onclick=""><i class="fa fa-trash-o" aria-hidden="true"></i> Activer</button>                            
+                                                </form>
+                                                @endif
+                                                <form method="POST" action="{{ url('/users/delete/' . $user->id) }}" accept-charset="UTF-8" style="display:inline">
+                                                    {{ method_field('DELETE') }}
+                                                    {{ csrf_field() }}
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer User"><i class="fa fa-trash" aria-hidden="true"></i> Supprimer</button>
                                                 </form>
                                             </td>
                                         </tr>

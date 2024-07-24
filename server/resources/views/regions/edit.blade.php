@@ -2,7 +2,7 @@
 @section('content')
 
 <div class="card" style="margin:20px;">
-    <div class="card-header">Edit Region</div>
+    <div class="card-header"><h1><b>Modifier Region</b></h1></div>
     <div class="card-body">
         <form action="{{ url('regions/' .$regions->id) }}" method="POST">
             {!! csrf_field() !!}
@@ -14,7 +14,7 @@
             <input type="text" name="libelle_region" id="libelle_region" value="{{ $regions->libelle_region}}" class="form-control"><br>
             <label for="">Taxe Regionale</label>
             <input type="text" name="taxe_regionale" id="taxe_regionale" value="{{ $regions->taxe_regionale}}" class="form-control"><br>
-            <input type="submit" value="Update" class="btn btn-success"><br>
+            <input type="submit" value="Modifier" class="btn btn-success"><br>
         </form>    
     </div>
 </div>

@@ -28,13 +28,9 @@
                                             <td>{{ $region->libelle_region }}</td>
                                             <td>{{ $region->taxe_regionale }}</td>
                                             <td>
-                                                <a href="{{ url('/regions/' . $region->id)}}" title="View Region"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>View</button></a>
-                                                <a href="{{ url('/regions/' . $region->id . '/edit')}}" title="Edit Region"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Edit</button></a>
-                                                <form method="POST" action="{{ url('/regions' . '/' . $region->id) }}" accept-charset="UTF-8" style="display:inline">
-                                                    {{ method_field('DELETE') }}
-                                                    {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete Region" onclick="return confirm("Confirmer supression?")"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>                            
-                                                </form>
+                                                <a href="{{ url('/regions/' . $region->id)}}" title="View Region"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Afficher</button></a>
+                                                <a href="{{ url('/regions/' . $region->id . '/edit')}}" title="Edit Region"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
+                                                
                                             </td>
                                         </tr>
                                     @endforeach

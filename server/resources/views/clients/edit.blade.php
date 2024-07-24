@@ -2,7 +2,7 @@
 @section('content')
 
 <div class="card" style="margin:20px;">
-    <div class="card-header">Modifier Client</div>
+    <div class="card-header"><h1><b>Modifier Client</b></h1></div>
     <div class="card-body">
         <form action="{{ url('clients/' .$clients->id) }}" method="POST">
             {!! csrf_field() !!}
@@ -20,7 +20,7 @@
             <input type="tel" name="telephone" id="telephone" value="{{ $clients->telephone}}" class="form-control"><br>
             <label for="">Adresse</label>
             <input type="text" name="adresse" id="adresse" value="{{ $clients->adresse}}" class="form-control"><br>
-            <input type="submit" value="Update" class="btn btn-success"><br>
+            <input type="submit" value="Modifier" class="btn btn-success"><br>
         </form>    
     </div>
 </div>

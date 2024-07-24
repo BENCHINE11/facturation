@@ -2,7 +2,7 @@
 @section('content')
 
 <div class="card" style="margin:20px;">
-    <div class="card-header"><h1><b>Create New Port</b></h1></div>
+    <div class="card-header"><h1><b>Ajouter Port</b></h1></div>
 
     <div class="card-body">
 
@@ -18,7 +18,7 @@
                 <option value="{{$region->id}}">{{$region->libelle_region}}</option>
                 @endforeach
             </select><br><br>
-            <input type="submit" value="Save" class="btn btn-success"><br>
+            <input type="submit" value="Ajouter" class="btn btn-success"><br>
         </form>
     </div>
 </div>

@@ -2,7 +2,7 @@
 @section('content')
 
 <div class="card" style="margin:20px;">
-    <div class="card-header">Edit Port</div>
+    <div class="card-header"><h1><b>Modifer Port</b></h1></div>
     <div class="card-body">
         <form action="{{ url('ports/' .$ports->id) }}" method="POST">
             {!! csrf_field() !!}
@@ -18,7 +18,7 @@
                 <option value="{{ $region->id }}" {{ $ports->region->id == $region->id ? 'selected' : '' }}>{{ $region->libelle_region }}</option>
                 @endforeach
             </select><br>
-            <input type="submit" value="Update" class="btn btn-success"><br>
+            <input type="submit" value="Modifier" class="btn btn-success"><br>
         </form>    
     </div>
 </div>
