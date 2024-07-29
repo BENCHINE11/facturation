@@ -1,77 +1,144 @@
 @extends('factures.layout')
 
 @section('content')
+
+<style>
+    th, td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+    }
+    .container-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .left, .right {
+        width: 45%;
+    }
+    .container-total {
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>
+
+
 <div class="container">
     <div class="card">
         <div class="card-header">Facture #{{ $factures->id }}</div>
         <div class="card-body">
-            <p><strong>Mois :</strong> {{ $factures->mois }}</p>
-            <p><strong>Année :</strong> {{ $factures->annee }}</p>
-            <p><strong>Poste :</strong> {{ $factures->releve->poste->ref_poste }}</p>
-            <p><strong>Puissance appelée :</strong> {{ $factures->puissance_appelee }}</p>
-            <p><strong>Cos phi :</strong> {{ $factures->cos_phi }}</p>
 
-            <style>
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                th, td {
-                    border: 1px solid black;
-                    padding: 8px;
-                    text-align: left;
-                }
-            </style>
+            <a href="{{ route('factures.downloadPDF', $factures->id) }}" class="btn btn-success" style="margin-bottom: 20px;">
+                Download PDF
+            </a>
 
-            <span>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>N° Facture</th>
-                            <th>Date d'Emission</th>
-                            <th>Statut Facture</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ $factures->id }}</td>
-                            <td>{{ $factures->created_at }}</td>
-                            @if ($factures->statut == 0)
-                                <td style="color: red;">Annulée</td>
-                            @elseif ($factures->statut == 1)
-                                <td style="color: yellow;">Non Encaissée</td>
-                            @else
-                                <td style="color: green;">Encaissée</td>
-                            @endif
-                        </tr>
-                    </tbody>
-                </table>
-            </span>
+            <br>
 
-            <h2><strong>Total : </strong></h2>
+            <div class="container-top">
+                <div class="left">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N° Facture</th>
+                                <th>Date d'Emission</th>
+                                <th>Statut Facture</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>{{ $factures->id }}</th>
+                                <th>{{ $factures->created_at }}</th>
+                                @if ($factures->statut == 0)
+                                    <th style="color: red;">Annulée</th>
+                                @elseif ($factures->statut == 1)
+                                    <th style="color: orange;">Impayée</th>
+                                @else
+                                    <th style="color: green;">Réglée</th>
+                                @endif
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <div class="right">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Code Client :</th>
+                                <th>{{ $factures->releve->poste->client->ref_client }}</th>
+                            </tr>
+                            <tr>
+                                <th>Nom Client :</th>
+                                <th>{{ $factures->releve->poste->client->raison_sociale }}</th>
+                            </tr>
+                            <tr>
+                                <th>Adresse Client :</th>
+                                <th>{{ $factures->releve->poste->client->adresse }}</th>
+                            </tr>
+                            <tr>
+                                @if (!$factures->releve->poste->client->cin)
+                                    <th>ICE :</th>
+                                    <th>{{ $factures->releve->poste->client->ice }}</th>
+                                @elseif (!$factures->releve->poste->client->ice)
+                                    <th>ICE :</th>
+                                    <th>{{ $factures->releve->poste->client->ice }}</th>
+                                @endif    
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            
+
+            <br>
+
             <table>
                 <thead>
                     <tr>
-                        <th>Total HT</th>
-                        <th>Total TR</th>
-                        <th>Total TVA</th>
-                        <th>Total TTC</th>
+                        <th>Puissance appelée</th>
+                        <th>Indicateur Maximum</th>
+                        <th>Cos PHI</th>
+                        <th>Minimum Garantie</th>
+                        <th>Puissance Installée</th>
+                        <th>Puissance Souscrite</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ $factures->total_HT }} dh</td>
-                        <td>{{ $factures->total_TR }} dh</td>
-                        <td>{{ $factures->total_TVA }} dh</td>
-                        <td>{{ $factures->total_TTC }} dh</td>
+                        <th>{{ $factures->puissance_appelee }}</th>
+                        <th>{{ $factures->releve->indicateur_max }}</th>
+                        <th>{{ $factures->cos_phi }}</th>
+                        <th>{{ $factures->releve->poste->min_garanti }}</th>
+                        <th>{{ $factures->releve->poste->puissance_installee }}</th>
+                        <th>{{ $factures->releve->poste->puissance_souscrite }}</th>
                     </tr>
                 </tbody>
             </table>
 
-            <strong>--------------------------------------------------------------------------------------------------------------------------------</strong>
+            <br>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Réf. Poste</th>
+                        <th>Mois Facturation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>{{ $factures->releve->poste->ref_poste }}</th>
+                        <th>{{ $factures->releve->mois }}/{{ $factures->releve->annee }}</th>
+                    </tr>
+                </tbody>
+            </table>
+
+            <br>
+
+            <hr>
 
             <h2><strong>Détails Facture : </strong></h2>
-            <table>
+            <table style="width:100%; border-collapse: collapse;">
                 <thead>
                     <tr>
                         <th>Code</th>
@@ -107,8 +174,38 @@
                     @endforeach
                 </tbody>
             </table>
-            <strong>--------------------------------------------------------------------------------------------------------------------------------</strong>
+            
+            <hr>
+            <br>
+
+            <div class="container-total">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Total HT</th>
+                            <th>{{ $factures->total_HT }} dh</th>
+                        </tr>
+                        <tr>
+                            <th>Total TR</th>
+                            <th>{{ $factures->total_TR }} dh</th>
+                        </tr>
+                        <tr>
+                            <th>Total TVA</th>
+                            <th>{{ $factures->total_TVA }} dh</th>
+                        </tr>
+                        <tr>
+                            <th>Total TTC</th>
+                            <th>{{ $factures->total_TTC }} dh</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><strong>{{ number_to_currency_words($factures->total_TTC, 'fr', 'dirhams', 'centimes') }}</strong></td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
         </div>
     </div>
 </div>
 @endsection
+

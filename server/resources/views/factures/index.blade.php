@@ -36,9 +36,9 @@
                                                 @if ($facture->statut == 0)
                                                     <span style="color: red;">Annulée</span>
                                                 @elseif ($facture->statut == 1)
-                                                    <span style="color: yellow;">Non Encaissée</span>
+                                                    <span style="color: orange;">Impayée</span>
                                                 @else
-                                                    <span style="color: green;">Encaissée</span>
+                                                    <span style="color: green;">Réglée</span>
                                                 @endif
                                             </td>
                                             <td>

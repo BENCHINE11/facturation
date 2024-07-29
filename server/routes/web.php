@@ -47,3 +47,4 @@ Route::resource('/factures', FactureController::class);
 
 Route::get('/factures/create/{id_releve}', [FactureController::class, 'createFactureFromReleve'])->name('factures.createFromReleve');
 
+Route::get('/factures/{id}/download', [FactureController::class, 'downloadPDF'])->name('factures.downloadPDF');
