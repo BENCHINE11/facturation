@@ -28,7 +28,7 @@
                                     @foreach ($factures as $facture)
                                         <tr>
                                             <td>{{ $facture->id }}</td>
-                                            <!-- <td>{{ $facture->releve->mois }} / {{ $facture->releve->annee }}</td> -->
+                                            <td>{{ $facture->mois }} / {{ $facture->annee }}</td>
                                             <td>{{ $facture->created_at }}</td>
                                             <td>{{ $facture->total_TTC }}</td>
                                             <td>{{ $facture->releve->poste->ref_poste }}</td>

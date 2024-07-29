@@ -31,7 +31,7 @@ class Poste extends Model
     
     public function releve()
     {
-        return $this->belongsTo(Releve::class, 'id_poste');
+        return $this->hasMany(Releve::class, 'id_poste');
     }
 
     public function factures()

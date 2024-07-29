@@ -40,7 +40,7 @@ class ClientController extends Controller
     {
         $input = $request->all();
         Client::create($input);
-        return redirect('clients')->with('flash_message', 'Client Ajouté !');
+        return redirect('clients')->with('flash_message', 'Client ajouté avec succès!');
     }
 
     /**

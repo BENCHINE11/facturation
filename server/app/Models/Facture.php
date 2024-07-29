@@ -11,39 +11,13 @@ class Facture extends Model
     protected $table = 'factures';
     protected $fillable = [
         'id_releve',
-        'id_poste',
-        'statut',
 
+        'statut',
         'mois',
         'annee',
-
-        'consommation_jour',
-        'consommation_nuit',
-        'consommation_pointe',
-        'consommation_reactif',
-
-        'e_active_jour_ancien',
-        'e_active_nuit_ancien',
-        'e_active_pointe_ancien',
-
-        'e_active_jour_actuel',
-        'e_active_nuit_actuel',
-        'e_active_pointe_actuel',
-
-        'pa',
-        'cos_phi',
-
-        'rdps',
-        'v',
-
-        'eaj_actuel',
-        'ean_actuel',
-        'eap_actuel',
-
-        'eaj_ancien',
-        'ean_ancien',
-        'eap_ancien',
         
+        'puissance_appelee',
+        'cos_phi',
         'total_HT',
         'total_TVA',
         'total_TR',
@@ -58,6 +32,11 @@ class Facture extends Model
     public function poste()
     {
         return $this->belongsTo(Poste::class, 'id_poste');
+    }
+
+    public function details_factures()
+    {
+        return $this->hasMany(DetailsFacture::class, 'id_facture', 'id');
     }
 
 }
