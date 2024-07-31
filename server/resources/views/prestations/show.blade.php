@@ -10,8 +10,7 @@
         <p class="card-text">Tarif : {{ $prestations->tarif }} MAD</p>
         <p class="card-text">Taux TVA : {{ $prestations->taux_TVA }}%</p>
         <p class="card-text">Créé Le : {{ $prestations->created_at }}</p>
-        <p class="card-text">Dernière Modification: {{ $prestations->updated_at }} par: <a href="">USER</a> </p>
-        
+        <p class="card-text">Dernière Modification: {{ $prestations->updated_at }} par: {{ $prestations->last_modified_by }}</p>
     </div>
 </div>
 @stop

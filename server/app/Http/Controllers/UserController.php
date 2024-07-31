@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Port;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -14,11 +15,22 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('port')->get();
-        return view('users.index', compact('users'));
+        $search = $request->get('search');
+        $users = User::when($search, function($query, $search) {
+            return $query->where('nom', 'like', '%' . $search . '%')
+                        ->orWhere('prenom', 'like', '%' . $search . '%')
+                        ->orWhere('telephone', 'like', '%' . $search . '%')
+                        ->orWhere('role', 'like', '%' . $search . '%')
+                        ->orWhereHas('port', function($q) use ($search) {
+                            $q->where('libelle_port', 'like', '%' . $search . '%');
+                        });
+        })->paginate(10);
+
+        return view('users.index')->with('users', $users);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -40,8 +52,9 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+        $input['password']=Hash::make($input['password']);
         User::create($input);
-        return redirect('users')->with('flash_message', 'User Added!!');
+        return redirect('users')->with('flash_message', 'Utilisateur ajouté !');
     }
 
     /**

@@ -26,7 +26,7 @@
                                     @foreach ($releves as $releve)
                                         <tr>
                                             <td>{{ $releve->id }}</td>
-                                            <td>{{ $releve->periode_consommation }}</td>
+                                            <td>{{ $releve->mois }} / {{ $releve->annee }}</td>
                                             <td>{{ $releve->created_at }}</td>
                                             <td>{{ $releve->poste->ref_poste }}</td>
                                             <td>
