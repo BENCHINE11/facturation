@@ -93,6 +93,7 @@ class UserController extends Controller
     {
         $users = User::find($id);
         $input = $request->all();
+        $input['password']=Hash::make($input['password']);
         $users->update($input);
         return redirect('users')->with('flash_message', 'Utlilisateur modifié avec Succès!');
     }
@@ -127,13 +128,5 @@ class UserController extends Controller
 
     return redirect('users')->with('error_message', 'Utilisateur non trouvé!');
     }
-
-    // public function enable(User $user)
-    // {
-    //     $user->etat = '1';
-    //     $user->save();
-    //     return redirect('users')->with('flash_message', 'Utilisateur activé avec succès!');
-
-    // }
     
 }
