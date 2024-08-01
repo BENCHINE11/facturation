@@ -55,6 +55,7 @@ Route::middleware(['auth:sanctum', 'role:finance'])->group(function () {
     // Toutes les routes de ressource pour les clients
     Route::resource('/clients', ClientController::class)->except('index','show');
     Route::resource('/postes', PosteController::class);
+    Route::get('/factures/encaisser/{id}', [FactureController::class, 'showEncaisserForm'])->name('factures.encaisser.form');
     Route::post('/factures/encaisser/{id}', [FactureController::class, 'encaisser'])->name('factures.encaisser');
 });
 
@@ -70,6 +71,7 @@ Route::middleware(['auth:sanctum', 'role:facturation'])->group(function () {
         return view('facturation-dashboard');
     })->name('facturation.dashboard');
     Route::resource('/factures', FactureController::class)->except('index','show');
+    Route::get('/factures/annuler/{id}', [FactureController::class, 'showAnnulerForm'])->name('factures.showAnnulerForm');
     Route::post('/factures/annuler/{id}', [FactureController::class, 'annuler'])->name('factures.annuler');
     Route::get('factures/{id}/download', [FactureController::class, 'downloadPDF'])->name('factures.downloadPDF');
 });

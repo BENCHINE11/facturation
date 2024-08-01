@@ -15,7 +15,9 @@
                             Voir Factures Annulées
                         </a><br><br>
                         <form method="GET" action="{{ url('/factures') }}" class="form-inline my-2 my-lg-0 float-right">
-                            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Rechercher" aria-label="Search"><br>
+                            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Rechercher" aria-label="Search">
+                            <label>Date Début</label><input class="form-control mr-sm-2" type="text" name="date_debut" placeholder="MM/YYYY" aria-label="Date Début">
+                            <label>Date Fin</label><input class="form-control mr-sm-2" type="text" name="date_fin" placeholder="MM/YYYY" aria-label="Date Fin">
                             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
                         </form>
                         <div class="table-responsive">
@@ -59,13 +61,12 @@
                                                     <button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> Voir</button>
                                                 </a>
                                                 @if ($facture->statut == 1 )
-                                                <form method="POST" action="{{ url('/factures/encaisser/' . $facture->id) }}" accept-charset="UTF-8" style="display:inline">
+                                                <a href="{{ url('/factures/encaisser/' . $facture->id) }}" class="btn btn-success btn-sm" title="Encaisser Facture">
+                                                    <i class="fa fa-check" aria-hidden="true"></i> Encaisser
+                                                </a>
+                                                <form method="GET" action="{{ url('/factures/annuler/' . $facture->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-success btn-sm" title="Encaisser Facture" onclick="return confirm('Êtes-vous sûr de vouloir encaisser cette facture ?');"><i class="fa fa-check" aria-hidden="true"></i> Encaisser</button>
-                                                </form>
-                                                <form method="POST" action="{{ url('/factures/annuler/' . $facture->id) }}" accept-charset="UTF-8" style="display:inline">
-                                                    {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-warning btn-sm" title="Annuler Facture" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette facture ?');"><i class="fa fa-ban" aria-hidden="true"></i> Annuler</button>
+                                                    <button type="submit" class="btn btn-warning btn-sm" title="Annuler Facture"><i class="fa fa-ban" aria-hidden="true"></i> Annuler</button>
                                                 </form>
                                                 @endif
                                             </td>
@@ -73,7 +74,9 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            <div class="pagination-wrapper"> {{ $factures->appends(['search' => Request::get('search')])->links() }} </div>
+                            <div class="pagination-wrapper">
+                                {{ $factures->appends(['search' => Request::get('search'), 'date_debut' => Request::get('date_debut'), 'date_fin' => Request::get('date_fin')])->links('vendor.pagination.bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>

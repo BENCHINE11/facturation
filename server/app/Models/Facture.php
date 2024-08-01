@@ -26,6 +26,8 @@ class Facture extends Model
         'cree_par',
         'annulee_par',
         'reglee_par',
+        'mode_reglement',
+        'motif_refus',
     ];
 
     public function releve()

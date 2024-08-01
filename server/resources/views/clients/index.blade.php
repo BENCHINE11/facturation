@@ -49,7 +49,9 @@
                                     
                                 </tbody>
                             </table>
-                            <div class="pagination-wrapper"> {{ $clients->appends(['search' => Request::get('search')])->links() }} </div>
+                            <div class="pagination-wrapper">
+                                {{ $clients->appends(['search' => Request::get('search')])->links('vendor.pagination.bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>

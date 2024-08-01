@@ -37,7 +37,7 @@
                                                 <form method="POST" action="{{ url('/prestations' . '/' . $prestation->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé" onclick="return confirm("Confirmer supression?")"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé" onclick="return confirm('Confirmer supression?');"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
                                                 </form>
                                             </td>
                                         </tr>

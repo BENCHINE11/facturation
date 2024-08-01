@@ -25,6 +25,7 @@
                                         <th>Total TTC</th>
                                         <th>Client</th>
                                         <th>Poste</th>
+                                        <th>Crée par</th>
                                         <th>Annulée par</th>
                                         <th>Actions</th>
                                     </tr>
@@ -38,6 +39,7 @@
                                             <td>{{ $facture->total_TTC }}</td>
                                             <td>{{ $facture->releve->poste->client->raison_sociale }}</td>
                                             <td>{{ $facture->releve->poste->ref_poste }}</td>
+                                            <td>{{ $facture->cree_par}}</td>
                                             <td>{{ $facture->annulee_par}}</td>
                                             <td>
                                                 <a href="{{ url('/factures/' . $facture->id)}}" title="Voir Relevé">
@@ -48,7 +50,9 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            <div class="pagination-wrapper"> {{ $factures->appends(['search' => Request::get('search')])->links() }} </div>
+                            <div class="pagination-wrapper">
+                                {{ $factures->appends(['search' => Request::get('search')])->links('vendor.pagination.bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>

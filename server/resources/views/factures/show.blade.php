@@ -35,6 +35,11 @@
                             <th>N° Facture</th>
                             <th>Date d'Emission</th>
                             <th>Statut Facture</th>
+                            @if ($factures->statut=='2')
+                                <th>Méthode de Paiement</th>
+                            @elseif ($factures->statut=='0')
+                                <th>Motif d'annulation</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -47,6 +52,11 @@
                                 <td style="color: yellow;">Non Encaissée</td>
                             @else
                                 <td style="color: green;">Encaissée</td>
+                            @endif
+                            @if ($factures->statut=='2')
+                                <td>{{$factures->mode_reglement}}</td>
+                            @elseif ($factures->statut=='0')
+                                <td>{{$factures->motif_refus}}</td>
                             @endif
                         </tr>
                     </tbody>
