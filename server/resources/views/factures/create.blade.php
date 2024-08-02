@@ -21,7 +21,7 @@
             <label for="">Année</label>
             <input type="text" name="annee" value="{{ isset($recentReleve) ? $recentReleve->annee : '' }}" class="form-control" readonly><br>
 
-            <input type="submit" value="Enregistrer" class="btn btn-success"><br>
+            <input type="submit" value="Valider" class="btn btn-success" onclick="return confirm('Vous êtes sûr de vouloir valider?')"><br>
         </form>
     </div>
 </div>
