@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('ref_poste')->unique();
             $table->float('puissance_souscrite');
             $table->float('puissance_installee');          
-            $table->smallInteger('caution');
-            $table->string('min_garanti');
+            $table->float('caution');
+            $table->float('min_garanti');
             $table->foreign('id_port')->references('id')->on('ports');
             $table->foreign('id_client')->references('id')->on('clients');
             $table->timestamps();

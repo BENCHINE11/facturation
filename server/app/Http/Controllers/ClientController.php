@@ -13,11 +13,19 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::all();
+        $search = $request->get('search');
+        $clients = Client::when($search, function($query, $search) {
+            return $query->where('ref_client', 'like', '%' . $search . '%')
+                        ->orWhere('raison_sociale', 'like', '%' . $search . '%')
+                        ->orWhere('cin', 'like', '%' . $search . '%')
+                        ->orWhere('ice', 'like', '%' . $search . '%');
+        })->paginate(10);
+
         return view('clients.index')->with('clients', $clients);
     }
+
 
     /**
      * Show the form for creating a new resource.

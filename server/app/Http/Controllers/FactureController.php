@@ -2,20 +2,86 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\DetailsFacture;
 use App\Models\Facture;
 use App\Models\Poste;
 use App\Models\Releve;
 use App\Models\Prestation;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use PDF;
+use Illuminate\Support\Facades\DB;
 
 class FactureController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
+{
+    $search = $request->get('search');
+    $dateDebut = $request->get('date_debut');
+    $dateFin = $request->get('date_fin');
+
+    $factures = Facture::whereIn('statut', ['1', '2'])
+        ->when($search, function($query, $search) {
+            return $query->where('id', 'like', '%' . $search . '%')
+                ->orWhere(DB::raw('CONCAT(mois, "/", annee)'), 'like', '%' . $search . '%')
+                ->orWhere('cree_par', 'like', '%' . $search . '%')
+                ->orWhere('reglee_par', 'like', '%' . $search . '%')
+                ->orWhereHas('releve.poste.client', function($q) use ($search) {
+                    $q->where('raison_sociale', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('releve.poste', function($q) use ($search) {
+                    $q->where('ref_poste', 'like', '%' . $search . '%');
+                });
+        })
+        ->when($dateDebut, function($query, $dateDebut) {
+            list($moisDebut, $anneeDebut) = explode('/', $dateDebut);
+            $query->where(function($query) use ($moisDebut, $anneeDebut) {
+                $query->where('annee', '>', $anneeDebut)
+                      ->orWhere(function($query) use ($moisDebut, $anneeDebut) {
+                          $query->where('annee', $anneeDebut)
+                                ->where('mois', '>=', $moisDebut);
+                      });
+            });
+        })
+        ->when($dateFin, function($query, $dateFin) {
+            list($moisFin, $anneeFin) = explode('/', $dateFin);
+            $query->where(function($query) use ($moisFin, $anneeFin) {
+                $query->where('annee', '<', $anneeFin)
+                      ->orWhere(function($query) use ($moisFin, $anneeFin) {
+                          $query->where('annee', $anneeFin)
+                                ->where('mois', '<=', $moisFin);
+                      });
+            });
+        })
+        ->paginate(10);
+
+    return view('factures.index', compact('factures'));
+}
+
+
+    public function indexAnnulee(Request $request)
     {
-        $factures = Facture::orderBy('created_at')->get();
-        return view('factures.index', compact('factures'));
+        $search = $request->get('search');
+
+        $factures = Facture::whereIn('statut', ['0'])
+            ->when($search, function($query, $search) {
+                return $query->where('id', 'like', '%' . $search . '%')
+                    ->orWhere(DB::raw('CONCAT(mois, "/", annee)'), 'like', '%' . $search . '%')
+                    ->orWhere('annulee_par', 'like', '%' . $search . '%')
+                    ->orWhereHas('releve.poste.client', function($q) use ($search) {
+                        $q->where('raison_sociale', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('releve.poste', function($q) use ($search) {
+                        $q->where('ref_poste', 'like', '%' . $search . '%');
+                    });
+            })
+            ->paginate(10);
+
+        return view('factures.annulees', compact('factures'));
     }
+
 
     public function create()
     {
@@ -25,173 +91,329 @@ class FactureController extends Controller
         if (!$recentReleve) {
             return redirect()->back()->with('error', 'Aucun relevé trouvé. Veuillez ajouter un relevé avant de créer une facture.');
         }
-
-        list($currentReleve, $lastMonthReleve) = $this->getReleves($recentReleve->mois, $recentReleve->annee);
-        if (!$currentReleve) {
-            return redirect()->back()->with('error', 'Les relevés nécessaires ne sont pas disponibles.');
-        }
-
-        list($consommationJour, $consommationNuit, $consommationPointe, $consommationReactif) = $this->calculateConsommations($currentReleve, $lastMonthReleve);
-        list($cr_jour, $cr_nuit, $cr_pointe) = $this->calculateCr($consommationJour, $consommationNuit, $consommationPointe);
-
-        $e_active = $this->calculateEnergieActive($currentReleve, $lastMonthReleve, $cr_jour, $cr_nuit, $cr_pointe);
-
-        $tg_phi = $consommationReactif / array_sum($e_active['actuel']);
-        $cos_phi = sqrt(1 / (1 + pow($tg_phi, 2)));
-        $pa = $currentReleve->indicateur_max / $cos_phi;
-        $rp = $currentReleve->poste->puissance_souscrite;
-        $rdps = $pa > $rp ? ($pa - $rp) : 0;
-
-        $prestations = Prestation::whereIn('code', [
-            '080101', '080102', '080121', '080103', '080108',
-            '080104', '080105', '080106', '080112'
-        ])->get()->keyBy('code');
-
-        list($total_HT, $total_TVA, $total_TR, $total_TTC) = $this->calculateTotals($e_active['actuel'], $rdps, $cos_phi, $prestations, $currentReleve);
-
-        return view('factures.create', compact(
-            'postes', 
-            'recentReleve', 
-            'consommationJour', 
-            'consommationNuit', 
-            'consommationPointe', 
-            'consommationReactif', 
-            'pa', 
-            'cos_phi', 
-            'e_active_jour_actuel',
-            'e_active_nuit_actuel', 
-            'e_active_pointe_actuel', 
-            'v',
-            'total_HT',
-            'total_TVA',
-            'total_TR',
-            'total_TTC'
-        ));
+            
+        return view('factures.create', compact('postes', 'recentReleve'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'poste_id' => 'required|exists:postes,id',
-        ]);
-
+        $postes = Poste::all();
         $recentReleve = Releve::latest()->first();
-        list($currentReleve, $lastMonthReleve) = $this->getReleves($recentReleve->mois, $recentReleve->annee);
 
-        if (!$currentReleve || !$lastMonthReleve) {
-            return redirect()->back()->with('error', 'Les relevés nécessaires ne sont pas disponibles.');
+        if (!$recentReleve) {
+            return redirect()->back()->with('error', 'Aucun relevé trouvé. Veuillez ajouter un relevé avant de créer une facture.');
         }
 
-        list($consommationJour, $consommationNuit, $consommationPointe, $consommationReactif) = $this->calculateConsommations($currentReleve, $lastMonthReleve);
-        list($cr_jour, $cr_nuit, $cr_pointe) = $this->calculateCr($consommationJour, $consommationNuit, $consommationPointe);
+        if ($recentReleve->mois == 1) {
+            $previousReleve = Releve::where('annee', $recentReleve->annee - 1)
+                                    ->where('mois', 12)
+                                    ->first();
+        } else {
+            $previousReleve = Releve::where('annee', $recentReleve->annee)
+                                    ->where('mois', $recentReleve->mois - 1)
+                                    ->first();
+        }
 
-        $e_active = $this->calculateEnergieActive($currentReleve, $lastMonthReleve, $cr_jour, $cr_nuit, $cr_pointe);
+        if (!$previousReleve) {
+            $c_jour = $recentReleve->index_triJ ;
+            $c_nuit = $recentReleve->index_triN ;
+            $c_pointe = $recentReleve->index_triP ;
+            $c_reactif = $recentReleve->index_reactif ;  
+        }
+        else {
+            $c_jour = $recentReleve->index_triJ - $previousReleve->index_triJ;
+            $c_nuit = $recentReleve->index_triN - $previousReleve->index_triN;
+            $c_pointe = $recentReleve->index_triP - $previousReleve->index_triP;
+            $c_reactif = $recentReleve->index_reactif - $previousReleve->index_reactif;
+        }
 
-        $tg_phi = $consommationReactif / array_sum($e_active['actuel']);
-        $cos_phi = sqrt(1 / (1 + pow($tg_phi, 2)));
-        $pa = $currentReleve->indicateur_max / $cos_phi;
-        $rp = $currentReleve->poste->puissance_souscrite;
-        $rdps = $pa > $rp ? ($pa - $rp) : 0;
+
+        $cr_jour = ($c_jour / ($c_jour + $c_nuit + $c_pointe));
+        $cr_nuit = ($c_nuit / ($c_jour + $c_nuit + $c_pointe));
+        $cr_pointe = ($c_pointe / ($c_jour + $c_nuit + $c_pointe));
 
         $prestations = Prestation::whereIn('code', [
             '080101', '080102', '080121', '080103', '080108',
             '080104', '080105', '080106', '080112'
         ])->get()->keyBy('code');
 
-        list($total_HT, $total_TVA, $total_TR, $total_TTC) = $this->calculateTotals($e_active['actuel'], $rdps, $cos_phi, $prestations, $currentReleve);
+        $e_rev_jour = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_jour;
+        $e_rev_nuit = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_nuit;
+        $e_rev_pointe = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_pointe;
+
+        $ccd_globale = 0; // Assuming this needs to be calculated or provided
+
+        $cbt_jour = $ccd_globale * $cr_jour;
+        $cbt_nuit = $ccd_globale * $cr_nuit;
+        $cbt_pointe = $ccd_globale * $cr_pointe;
+
+        $e_active_jour = $e_rev_jour - $cbt_jour;
+        $e_active_nuit = $e_rev_nuit - $cbt_nuit;
+        $e_active_pointe = $e_rev_pointe - $cbt_pointe;
+
+        $tg_phi = $c_reactif / ($e_active_jour + $e_active_nuit + $e_active_pointe);
+        $cos_phi = sqrt(1 / (1 + pow($tg_phi, 2)));
+        
+        $puissance_appelee = $recentReleve->indicateur_max / $cos_phi;
+
+        $rdps = 0 ;
+        if ($puissance_appelee > $recentReleve->poste->puissance_souscrite) {
+            $rdps = $puissance_appelee - $recentReleve->poste->puissance_souscrite;
+        }
+
+        $majoration = 0;
+        if ($cos_phi < 0.8) {
+            $majoration = 2 * (0.8 - $cos_phi) * ($e_active_jour * $prestations['080101']->tarif + $e_active_nuit * $prestations['080102']->tarif + $e_active_pointe * $prestations['080121']->tarif + $recentReleve->poste->puissance_souscrite * $prestations['080103']->tarif + $rdps * $prestations['080108']->tarif);
+        }
 
         $facture = Facture::create([
-            'id_releve' => $currentReleve->id,
-            'id_poste' => $request->poste_id,
-            'statut' => '1', 
+            'id_releve' => $recentReleve->id,
+            'mois' => $recentReleve->mois,
+            'annee' => $recentReleve->annee,
+            'puissance_appelee' => $puissance_appelee, // Example value
             'cos_phi' => $cos_phi,
-            'total_HT' => $total_HT,
-            'total_TVA' => $total_TVA,
-            'total_TR' => $total_TR,
-            'total_TTC' => $total_TTC,
-            'mois' => $currentReleve->mois,
-            'annee' => $currentReleve->annee,
-            'consommation_jour' => $consommationJour,
-            'consommation_nuit' => $consommationNuit,
-            'consommation_pointe' => $consommationPointe,
-            'consommation_reactif' => $consommationReactif,
-            'pa' => $pa,
-            'e_active_jour_actuel' => $e_active['actuel'][0],
-            'e_active_nuit_actuel' => $e_active['actuel'][1],
-            'e_active_pointe_actuel' => $e_active['actuel'][2],
-            'rdps' => $rdps,
-            'eaj_actuel' => $e_active['actuel'][3],
-            'ean_actuel' => $e_active['actuel'][4],
-            'eap_actuel' => $e_active['actuel'][5],
+            'total_HT' => 0, // Set these values according to your logic
+            'total_TVA' => 0,
+            'total_TR' => 0,
+            'total_TTC' => 0,
         ]);
-
-        return redirect()->route('factures.index')->with('success', 'Facture créée avec succès.');
-    }
-
-    private function getReleves($currentMonth, $currentYear)
-    {
-        $currentReleve = Releve::where('mois', $currentMonth)
-                                ->where('annee', $currentYear)
-                                ->first();
-
-        $lastMonthReleve = Releve::where('mois', '<', $currentMonth)
-                                ->where('annee', $currentYear)
-                                ->orWhere(function($query) use ($currentMonth, $currentYear) {
-                                    $query->where('mois', '=', 12)
-                                        ->where('annee', '=', $currentYear - 1);
-                                })
-                                ->orderBy('mois', 'desc')
-                                ->first();
         
-        return [$currentReleve, $lastMonthReleve];
+
+        foreach ($prestations as $prestation) {
+            if ( $prestation->code == '080101') {//Energie Active Jour
+                $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_jour;
+                $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_jour;
+                $quantite = $nouvel_index - $ancien_index;
+                $montant_ht = $quantite * $prestation->tarif ;
+                $montant_tva = ($montant_ht * $prestation->taux_TVA) /100;
+    
+                $detailsFacture = DetailsFacture::create([
+                    'id_facture' => $facture->id,
+                    'code_prestation' => $prestation->code,
+                    'quantite' => $quantite,
+                    'montant_ht' => $montant_ht,
+                    'montant_tva' => $montant_tva,
+                    'ancien_index' => $ancien_index,
+                    'nouvel_index' => $nouvel_index,
+                ]);
+            }
+    
+            elseif ( $prestation->code == '080102') { //Energie Active Nuit
+                $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_nuit;
+                $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_nuit;
+                $quantite = $nouvel_index - $ancien_index;
+                $montant_ht = $quantite * $prestation->tarif;
+                $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+    
+                $detailsFacture = DetailsFacture::create([
+                    'id_facture'=> $facture->id,
+                    'code_prestation' => $prestation->code,
+                    'quantite' => $quantite,
+                    'montant_ht' => $montant_ht,
+                    'montant_tva' => $montant_tva,
+                    'ancien_index' => $ancien_index,
+                    'nouvel_index' => $nouvel_index,
+                ]);
+            }
+    
+            elseif ( $prestation->code == '080121') { //Energie Active Pointe
+                $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_pointe;
+                $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_pointe;
+                $quantite = $nouvel_index - $ancien_index;
+                $montant_ht = $quantite * $prestation->tarif;
+                $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+    
+                $detailsFacture = DetailsFacture::create([
+                    'id_facture'=> $facture->id,
+                    'code_prestation' => $prestation->code,
+                    'quantite' => $quantite,
+                    'montant_ht' => $montant_ht,
+                    'montant_tva' => $montant_tva,
+                    'ancien_index' => $ancien_index,
+                    'nouvel_index' => $nouvel_index,
+                ]);
+            }
+    
+            elseif ( $prestation->code == '080103') { //Redevance de Puissance
+                $ancien_index = $nouvel_index = 0;
+                $quantite = $recentReleve->poste->puissance_souscrite;
+                $montant_ht = $quantite * $prestation->tarif;
+                $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+    
+                $detailsFacture = DetailsFacture::create([
+                    'id_facture'=> $facture->id,
+                    'code_prestation' => $prestation->code,
+                    'quantite' => $quantite,
+                    'montant_ht' => $montant_ht,
+                    'montant_tva' => $montant_tva,
+                    'ancien_index' => $ancien_index,
+                    'nouvel_index' => $nouvel_index,
+                ]);
+            }
+    
+            elseif ( $prestation->code == '080108') { //Redevance de Dépassement de Puissance Souscrite
+                $ancien_index = $nouvel_index = 0;
+                $quantite = $rdps;
+                $montant_ht = $quantite * $prestation->tarif;
+                $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+    
+                $detailsFacture = DetailsFacture::create([
+                    'id_facture'=> $facture->id,
+                    'code_prestation' => $prestation->code,
+                    'quantite' => $quantite,
+                    'montant_ht' => $montant_ht,
+                    'montant_tva' => $montant_tva,
+                    'ancien_index' => $ancien_index,
+                    'nouvel_index' => $nouvel_index,
+                ]);
+            }
+    
+            elseif ($majoration != 0 && $prestation->code == '080104')  { //Majoration pour Déphasage
+                    $ancien_index = $nouvel_index = 0;
+                    $quantite = $majoration;
+                    $montant_ht = $quantite * $prestation->tarif;
+                    $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+    
+                    $detailsFacture = DetailsFacture::create([
+                        'id_facture'=> $facture->id,
+                        'code_prestation' => $prestation->code,
+                        'quantite' => $quantite,
+                        'montant_ht' => $montant_ht,
+                        'montant_tva' => $montant_tva,
+                        'ancien_index' => $ancien_index,
+                        'nouvel_index' => $nouvel_index,
+                    ]);
+                }
+
+            else {
+                $quantite = 1;
+                $nouvel_index = $ancien_index = 0;
+                $montant_ht = $prestation->tarif;
+                $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+    
+                $detailsFacture = DetailsFacture::create([
+                    'id_facture'=> $facture->id,
+                    'code_prestation' => $prestation->code,
+                    'quantite' => $quantite,
+                    'montant_ht' => $montant_ht,
+                    'montant_tva' => $montant_tva,
+                    'ancien_index' => $ancien_index,
+                    'nouvel_index' => $nouvel_index,
+                ]);
+            }
+        }
+
+        // $total_HT = $e_active_jour * $prestations['080101']->tarif + $e_active_nuit * $prestations['080102']->tarif + $e_active_pointe * $prestations['080121']->tarif + $recentReleve->poste->puissance_souscrite * $prestations['080103']->tarif + $rdps * $prestations['080108']->tarif + $majoration * $prestations['080104']->tarif + $prestations['080105']->tarif + $prestations['080106']->tarif + $prestations['0801012']->tarif;
+        // $total_TVA = $e_active_jour * $prestations['080101']->tarif * $prestations['080101']->taux_TVA + $e_active_nuit * $prestations['080102']->tarif * $prestations['080102']->taux_TVA + $e_active_pointe * $prestations['080121']->tarif * $prestations['080121']->taux_TVA + $recentReleve->poste->puissance_souscrite * $prestations['080103']->tarif * $prestations['080103']->taux_TVA + $rdps * $prestations['080108']->tarif * $prestations['080108']->taux_TVA + $majoration * $prestations['080104']->tarif * $prestations['080104']->taux_TVA + $prestations['080105']->tarif * $prestations['080105']->taux_TVA + $prestations['080106']->tarif * $prestations['080106']->taux_TVA + $prestations['0801012']->tarif * $prestations['080112']->taux_TVA;
+        // $total_TR = $total_HT * $recentReleve->poste->port->region->taxe_regionale;
+        // $total_TTC = $total_HT + $total_TVA + $total_TR ; 
+
+        $total_HT = DetailsFacture::where('id_facture', $facture->id)->sum('montant_ht');
+        $total_TVA = DetailsFacture::where('id_facture', $facture->id)->sum('montant_tva');
+        $total_TR = $total_HT * $recentReleve->poste->port->region->taxe_regionale;
+        $total_TTC = $total_TR + $total_HT + $total_TVA;
+        
+
+        $facture->statut = '1';
+        $facture->total_HT = $total_HT;
+        $facture->total_TVA = $total_TVA;
+        $facture->total_TR = $total_TR;
+        $facture->total_TTC = $total_TTC;
+        $facture['cree_par'] = Auth::user()->email; // Enregistrer l'email de l'utilisateur
+
+        $facture->save();        
+
+        return redirect()->route('factures.index')->with('flash_message', 'Facture créée!');
     }
 
-    private function calculateConsommations($currentReleve, $lastMonthReleve)
-    {
-        $consommationJour = $currentReleve->index_jour - $lastMonthReleve->index_jour;
-        $consommationNuit = $currentReleve->index_nuit - $lastMonthReleve->index_nuit;
-        $consommationPointe = $currentReleve->index_pointe - $lastMonthReleve->index_pointe;
-        $consommationReactif = $currentReleve->index_reactif - $lastMonthReleve->index_reactif;
 
-        return [$consommationJour, $consommationNuit, $consommationPointe, $consommationReactif];
+    public function show($id)
+    {
+        // $factures = Facture::find($id);
+        $factures = Facture::with('details_factures')->find($id);
+
+        // if (!$factures->entete_facture) {
+        //     // Handle the case where entete_facture is missing
+        //     return redirect()->back()->with('error', 'Entête Facture not found for this Facture.');
+        // }
+
+        $prestations = Prestation::all();
+
+        return view('factures.show')->with([
+            'factures' => $factures,
+            'prestations' => $prestations
+        ]);
     }
 
-    private function calculateCr($consommationJour, $consommationNuit, $consommationPointe)
+    public function destroy($id)
     {
-        $cr_jour = $consommationJour * 0.03;
-        $cr_nuit = $consommationNuit * 0.02;
-        $cr_pointe = $consommationPointe * 0.1;
-
-        return [$cr_jour, $cr_nuit, $cr_pointe];
+        Facture::destroy($id);
+        return redirect('factures')->with('flash_message', 'Facture supprimée !');
     }
 
-    private function calculateEnergieActive($currentReleve, $lastMonthReleve, $cr_jour, $cr_nuit, $cr_pointe)
+    public function downloadPDF($id)
     {
-        $e_active_jour_actuel = ($currentReleve->index_jour + $cr_jour) - ($lastMonthReleve->index_jour + $cr_jour);
-        $e_active_nuit_actuel = ($currentReleve->index_nuit + $cr_nuit) - ($lastMonthReleve->index_nuit + $cr_nuit);
-        $e_active_pointe_actuel = ($currentReleve->index_pointe + $cr_pointe) - ($lastMonthReleve->index_pointe + $cr_pointe);
+        $factures = Facture::with(['releve.poste.client', 'details_factures'])->find($id);
+        $prestations = Prestation::all(); // Make sure to load the prestations
 
-        return [
-            'actuel' => [$e_active_jour_actuel, $e_active_nuit_actuel, $e_active_pointe_actuel, $e_active_jour_actuel, $e_active_nuit_actuel, $e_active_pointe_actuel]
-        ];
+        $pdf = PDF::loadView('factures.pdf', compact('factures', 'prestations'))
+                    ->setPaper('a3'); // Set paper size to A3
+        return $pdf->download('facture_' . $factures->id . '.pdf');
     }
 
-    private function calculateTotals($e_active_actuel, $rdps, $cos_phi, $prestations, $currentReleve)
+    public function showEncaisserForm($id)
     {
-        $total_HT = array_sum([
-            $e_active_actuel[0] * $prestations['080101']->tarif,
-            $e_active_actuel[1] * $prestations['080102']->tarif,
-            $e_active_actuel[2] * $prestations['080121']->tarif,
-            $rdps * $prestations['080103']->tarif,
-            $currentReleve->post_releve * $prestations['080108']->tarif,
+        $facture = Facture::findOrFail($id);
+        return view('factures.encaisser', compact('facture'));
+    }
+
+    public function encaisser(Request $request, $id)
+    {
+        $facture = Facture::findOrFail($id);
+
+        // Validation du montant
+        $request->validate([
+            'montant' => 'required|numeric|in:' . $facture->total_TTC,
+            'mode_reglement' => 'required|in:cash,virement,check',
+        ], [
+            'montant.in' => 'Le montant payé doit être égal au total TTC de la facture.',
         ]);
 
-        $total_TVA = $total_HT * $prestations['080104']->tarif;
-        $total_TR = $total_HT * $prestations['080105']->tarif;
-        $total_TTC = $total_HT + $total_TVA + $total_TR;
+        // Mettre à jour la facture
+        $facture->statut = '2';
+        $facture->reglee_par = Auth::user()->email;
+        $facture->mode_reglement = $request->mode_reglement;
+        $facture->save();
 
-        return [$total_HT, $total_TVA, $total_TR, $total_TTC];
+        return redirect()->route('factures.index')->with('flash_message', 'Facture encaissée avec succès!');
     }
+
+    public function showAnnulerForm($id)
+    {
+        $facture = Facture::findOrFail($id);
+        return view('factures.annuler', compact('facture'));
+    }
+
+    public function annuler(Request $request, $id)
+    {
+        $facture = Facture::findOrFail($id);
+
+        // Validation du motif de refus
+        $request->validate([
+            'motif_refus' => 'required|string|max:255',
+        ]);
+
+        // Mettre à jour la facture
+        $facture->statut = '0';
+        $facture->annulee_par = Auth::user()->email;
+        $facture->motif_refus = $request->motif_refus;
+        $facture->save();
+
+        return redirect()->route('factures.index')->with('flash_message', 'Facture annulée avec succès!');
+    }
+
+
+
 }
 
 ?>

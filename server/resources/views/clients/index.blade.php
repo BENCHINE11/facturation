@@ -10,7 +10,11 @@
                     <div class="card-body w-full">
                         <a href="{{ url('/clients/create') }}" class="btn btn-success btn-sm" title="Add Client">
                             +Ajouter Nouveau
-                        </a>
+                        </a><br><br>
+                        <form method="GET" action="{{ url('/clients') }}" class="form-inline my-2 my-lg-0 float-right">
+                            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Rechercher" aria-label="Search"><br>
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
+                        </form>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -45,6 +49,9 @@
                                     
                                 </tbody>
                             </table>
+                            <div class="pagination-wrapper">
+                                {{ $clients->appends(['search' => Request::get('search')])->links('vendor.pagination.bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -10,7 +10,11 @@
                     <div class="card-body w-full">
                         <a href="{{ url('/users/create') }}" class="btn btn-success btn-sm" title="Add User">
                             +Ajouter Nouveau
-                        </a>
+                        </a><br><br>
+                        <form method="GET" action="{{ url('/users') }}" class="form-inline my-2 my-lg-0 float-right">
+                            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Rechercher" aria-label="Search"><br>
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
+                        </form>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -33,7 +37,7 @@
                                             <td>{{ $user->prenom }}</td>
                                             <td>{{ $user->telephone }}</td>
                                             <td>{{ $user->role }}</td>
-                                            <td>{{ $user->port->libelle_port }}</td>
+                                            <td>{{ $user->port ? $user->port->libelle_port : 'N/A' }}</td>
                                             <td>
                                                 @if ($user->etat == 1)
                                                     <span style="color: green;">Activé</span>
@@ -48,13 +52,13 @@
                                                 <form method="POST" action="{{ url('/users' . '/' . $user->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete User" onclick=""><i class="fa fa-trash-o" aria-hidden="true"></i> Désactiver</button>                            
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete User"><i class="fa fa-trash-o" aria-hidden="true"></i> Désactiver</button>                            
                                                 </form>
                                                 @else
                                                 <form method="POST" action="{{ url('/users' . '/' . $user->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-success btn-sm" title="Activate User" onclick=""><i class="fa fa-trash-o" aria-hidden="true"></i> Activer</button>                            
+                                                    <button type="submit" class="btn btn-success btn-sm" title="Activate User"><i class="fa fa-trash-o" aria-hidden="true"></i> Activer</button>                            
                                                 </form>
                                                 @endif
                                                 <form method="POST" action="{{ url('/users/delete/' . $user->id) }}" accept-charset="UTF-8" style="display:inline">
@@ -65,9 +69,11 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                    
                                 </tbody>
                             </table>
+                            <div class="pagination-wrapper">
+                                {{ $users->appends(['search' => Request::get('search')])->links('vendor.pagination.bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>

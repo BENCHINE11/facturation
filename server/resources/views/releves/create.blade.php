@@ -26,7 +26,7 @@
                 
                 <label for="annee">Année</label>
                 <select name="annee" id="annee" class="form-control">
-                    @for ($i = date('Y'); $i <= 2040; $i++)
+                    @for ($i = date('Y'); $i >= 1999; $i--)
                         <option value="{{ $i }}">{{ $i }}</option>
                     @endfor
                 </select><br>

@@ -15,5 +15,6 @@ class Prestation extends Model
         'unite',
         'tarif',
         'taux_TVA',
+        'last_modified_by',
     ];
 }

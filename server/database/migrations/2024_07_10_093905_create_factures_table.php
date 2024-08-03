@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('factures', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_releve');
+<<<<<<< HEAD
             $table->unsignedBigInteger('id_poste');
             $table->enum('statut',['0','1','2'])->default('1'); //0 annulée; 1 non encaissée; 2 encaissée;
             
@@ -53,6 +54,20 @@ return new class extends Migration
             $table->float('total_TR');
             $table->float('total_TTC');
 
+=======
+
+            $table->enum('statut',['0','1','2'])->default('1'); //0 annulée; 1 non encaissée; 2 encaissée;
+            $table->integer('mois')->nullable();
+            $table->integer('annee')->nullable();
+
+            $table->decimal('puissance_appelee', 15, 3);
+            $table->decimal('cos_phi', 15, 2);
+            $table->decimal('total_HT', 15, 2);
+            $table->decimal('total_TVA', 15, 2);
+            $table->decimal('total_TR', 15, 2);
+            $table->decimal('total_TTC', 15, 2);
+            
+>>>>>>> 2649febc5d77b2f9af0ec61abea828ebf65f733c
             $table->foreign('id_releve')->references('id')->on('releves');
             $table->foreign('id_poste')->references('id')->on('postes');
             $table->timestamps();
