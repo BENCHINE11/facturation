@@ -1,5 +1,7 @@
 @extends('factures.layout')
 @section('content')
+@extends('factures.layout')
+@section('content')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -18,9 +20,14 @@
                     <form method="POST" action="{{ url('/factures/annuler/' . $facture->id) }}">
                         @csrf
                         <div class="form-group">
-                            <label for="motif_refus">{{ __('Motif de refus') }}</label>
-                            <textarea class="form-control" id="motif_refus" name="motif_refus" required></textarea>
+                            <label for="motif_refus">{{ __('Motif annulation') }}</label>
+                            <select class="form-control" id="motif_refus" name="motif_refus" required>
+                                <option value="Erreur système">Erreur système</option>
+                                <option value="Erreur taxateur">Erreur taxateur</option>
+                                <option value="Double facturation">Double facturation</option>
+                            </select>
                         </div>
+                        <br>
                         <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette facture ?');">{{ __('Annuler Facture') }}</button>
                     </form>
                 </div>
