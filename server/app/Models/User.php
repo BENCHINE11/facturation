@@ -18,9 +18,14 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'id_port',
+        'nom',
+        'prenom',
         'email',
         'password',
+        'role',
+        'telephone',
+        'etat',
     ];
 
     /**
@@ -41,4 +46,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function port()
+    {
+        return $this->belongsTo(Port::class, 'id_port');
+    }
 }
