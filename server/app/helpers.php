@@ -18,4 +18,5 @@ if (!function_exists('number_to_currency_words')) {
 
         return "{$integerPartInWords} {$currency} and {$decimalPartInWords} {$subunit}";
     }
+
 }

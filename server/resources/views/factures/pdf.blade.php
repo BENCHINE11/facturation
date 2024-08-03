@@ -43,6 +43,11 @@
                                 <th>N° Facture</th>
                                 <th>Date d'Emission</th>
                                 <th>Statut Facture</th>
+                                @if ($factures->statut=='2')
+                                    <th>Méthode de Paiement</th>
+                                @elseif ($factures->statut=='0')
+                                    <th>Motif d'annulation</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -55,6 +60,11 @@
                                     <td style="color: orange;">Impayée</td>
                                 @else
                                     <td style="color: green;">Réglée</td>
+                                @endif
+                                @if ($factures->statut=='2')
+                                    <td>{{$factures->mode_reglement}}</td>
+                                @elseif ($factures->statut=='0')
+                                    <td>{{$factures->motif_refus}}</td>
                                 @endif
                             </tr>
                         </tbody>
@@ -203,9 +213,21 @@
                         </tr>
                     </thead>
                 </table>
+                <br><br><br><br><br><br>
+                <table align="center">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div style="text-align: center;">
+                                    DIRECTION GENERALE : LOT MANDARONA 300, LOT 8A SIDI MAAROUF, CASABLANCA<br>
+                                    ICE : 001621200000014 TEL : 0520121314 - FAX : 0522786102 - IF : 1508000 - TP : 37998029
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
 </body>
 </html>
-

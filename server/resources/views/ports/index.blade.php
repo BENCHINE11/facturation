@@ -10,7 +10,11 @@
                     <div class="card-body w-full">
                         <a href="{{ url('/ports/create') }}" class="btn btn-success btn-sm" title="Add Port">
                             +Ajouter Nouveau
-                        </a>
+                        </a><br><br>
+                        <form method="GET" action="{{ url('/ports') }}" class="form-inline my-2 my-lg-0 float-right">
+                            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Rechercher" aria-label="Search"><br>
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
+                        </form>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -30,17 +34,15 @@
                                             <td>
                                                 <a href="{{ url('/ports/' . $port->id)}}" title="View Port"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
                                                 <a href="{{ url('/ports/' . $port->id . '/edit')}}" title="Edit Port"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
-                                                <!-- <form method="POST" action="{{ url('/ports' . '/' . $port->id) }}" accept-charset="UTF-8" style="display:inline">
-                                                    {{ method_field('DELETE') }}
-                                                    {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete Port" onclick="return confirm("Confirmer supression?")"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>                            
-                                                </form> -->
                                             </td>
                                         </tr>
                                     @endforeach
                                     
                                 </tbody>
                             </table>
+                            <div class="pagination-wrapper">
+                                {{ $ports->appends(['search' => Request::get('search')])->links('vendor.pagination.bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>

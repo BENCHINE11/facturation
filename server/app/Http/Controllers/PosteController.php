@@ -15,11 +15,22 @@ class PosteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $postes = Poste::all();
+        $search = $request->get('search');
+        $postes = Poste::when($search, function($query, $search) {
+            return $query->where('ref_poste', 'like', '%' . $search . '%')
+                        ->orWhereHas('client', function($q) use ($search) {
+                            $q->where('raison_sociale', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('port', function($q) use ($search) {
+                            $q->where('libelle_port', 'like', '%' . $search . '%');
+                        });
+        })->paginate(10);
+
         return view('postes.index')->with('postes', $postes);
     }
+
 
     /**
      * Show the form for creating a new resource.

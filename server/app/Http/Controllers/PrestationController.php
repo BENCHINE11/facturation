@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Prestation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class PrestationController extends Controller
 {
@@ -38,6 +40,8 @@ class PrestationController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+        $input['last_modified_by'] = Auth::user()->email; // Enregistrer l'email de l'utilisateur
+
         Prestation::create($input);
         return redirect('prestations')->with('flash_message', 'Prestation Ajoutée!');
     }
@@ -77,6 +81,7 @@ class PrestationController extends Controller
     {
         $prestation = Prestation::find($id);
         $input = $request->all();
+        $input['last_modified_by'] = Auth::user()->email; // Enregistrer l'email de l'utilisateur
         $prestation->update($input);
         return redirect('prestations')->with('flash_message', 'Prestation Mise à Jour Avec Succès!');
     }

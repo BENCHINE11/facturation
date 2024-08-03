@@ -3,22 +3,85 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\DetailsFacture;
-use App\Models\EnteteFacture;
 use App\Models\Facture;
 use App\Models\Poste;
 use App\Models\Releve;
 use App\Models\Prestation;
-use PDF;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use PDF;
+use Illuminate\Support\Facades\DB;
 
 class FactureController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
+{
+    $search = $request->get('search');
+    $dateDebut = $request->get('date_debut');
+    $dateFin = $request->get('date_fin');
+
+    $factures = Facture::whereIn('statut', ['1', '2'])
+        ->when($search, function($query, $search) {
+            return $query->where('id', 'like', '%' . $search . '%')
+                ->orWhere(DB::raw('CONCAT(mois, "/", annee)'), 'like', '%' . $search . '%')
+                ->orWhere('cree_par', 'like', '%' . $search . '%')
+                ->orWhere('reglee_par', 'like', '%' . $search . '%')
+                ->orWhereHas('releve.poste.client', function($q) use ($search) {
+                    $q->where('raison_sociale', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('releve.poste', function($q) use ($search) {
+                    $q->where('ref_poste', 'like', '%' . $search . '%');
+                });
+        })
+        ->when($dateDebut, function($query, $dateDebut) {
+            list($moisDebut, $anneeDebut) = explode('/', $dateDebut);
+            $query->where(function($query) use ($moisDebut, $anneeDebut) {
+                $query->where('annee', '>', $anneeDebut)
+                      ->orWhere(function($query) use ($moisDebut, $anneeDebut) {
+                          $query->where('annee', $anneeDebut)
+                                ->where('mois', '>=', $moisDebut);
+                      });
+            });
+        })
+        ->when($dateFin, function($query, $dateFin) {
+            list($moisFin, $anneeFin) = explode('/', $dateFin);
+            $query->where(function($query) use ($moisFin, $anneeFin) {
+                $query->where('annee', '<', $anneeFin)
+                      ->orWhere(function($query) use ($moisFin, $anneeFin) {
+                          $query->where('annee', $anneeFin)
+                                ->where('mois', '<=', $moisFin);
+                      });
+            });
+        })
+        ->paginate(10);
+
+    return view('factures.index', compact('factures'));
+}
+
+
+    public function indexAnnulee(Request $request)
     {
-        $factures = Facture::orderBy('created_at')->get();
-        return view('factures.index', compact('factures'));
+        $search = $request->get('search');
+
+        $factures = Facture::whereIn('statut', ['0'])
+            ->when($search, function($query, $search) {
+                return $query->where('id', 'like', '%' . $search . '%')
+                    ->orWhere(DB::raw('CONCAT(mois, "/", annee)'), 'like', '%' . $search . '%')
+                    ->orWhere('annulee_par', 'like', '%' . $search . '%')
+                    ->orWhereHas('releve.poste.client', function($q) use ($search) {
+                        $q->where('raison_sociale', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('releve.poste', function($q) use ($search) {
+                        $q->where('ref_poste', 'like', '%' . $search . '%');
+                    });
+            })
+            ->paginate(10);
+
+        return view('factures.annulees', compact('factures'));
     }
+
 
     public function create()
     {
@@ -74,6 +137,7 @@ class FactureController extends Controller
             '080104', '080105', '080106', '080112'
         ])->get()->keyBy('code');
 
+
         if (!$previousReleve) {
             $e_rev_jour = ($recentReleve->index_mono1  + $recentReleve->index_mono2  + $recentReleve->index_mono3 ) * $cr_jour;
             $e_rev_nuit = ($recentReleve->index_mono1  + $recentReleve->index_mono2  + $recentReleve->index_mono3 ) * $cr_nuit;
@@ -126,6 +190,7 @@ class FactureController extends Controller
 
         foreach ($prestations as $prestation) {
             if ( $prestation->code == '080101') {//Energie Active Jour
+
                 if ($previousReleve){
                     $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_jour;
                     $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_jour;
@@ -320,6 +385,7 @@ class FactureController extends Controller
         $facture->total_TVA = $total_TVA;
         $facture->total_TR = $total_TR;
         $facture->total_TTC = $total_TTC;
+        $facture['cree_par'] = Auth::user()->email; // Enregistrer l'email de l'utilisateur
 
         $facture->save();        
 
@@ -359,6 +425,58 @@ class FactureController extends Controller
         $pdf = PDF::loadView('factures.pdf', compact('factures', 'prestations'))
                     ->setPaper('a3'); // Set paper size to A3
         return $pdf->download('facture_' . $factures->id . '.pdf');
+    }
+
+
+    public function showEncaisserForm($id)
+    {
+        $facture = Facture::findOrFail($id);
+        return view('factures.encaisser', compact('facture'));
+    }
+
+    public function encaisser(Request $request, $id)
+    {
+        $facture = Facture::findOrFail($id);
+
+        // Validation du montant
+        $request->validate([
+            'montant' => 'required|numeric|in:' . $facture->total_TTC,
+            'mode_reglement' => 'required|in:cash,virement,check',
+        ], [
+            'montant.in' => 'Le montant payé doit être égal au total TTC de la facture.',
+        ]);
+
+        // Mettre à jour la facture
+        $facture->statut = '2';
+        $facture->reglee_par = Auth::user()->email;
+        $facture->mode_reglement = $request->mode_reglement;
+        $facture->save();
+
+        return redirect()->route('factures.index')->with('flash_message', 'Facture encaissée avec succès!');
+    }
+
+    public function showAnnulerForm($id)
+    {
+        $facture = Facture::findOrFail($id);
+        return view('factures.annuler', compact('facture'));
+    }
+
+    public function annuler(Request $request, $id)
+    {
+        $facture = Facture::findOrFail($id);
+
+        // Validation du motif de refus
+        $request->validate([
+            'motif_refus' => 'required|string|max:255',
+        ]);
+
+        // Mettre à jour la facture
+        $facture->statut = '0';
+        $facture->annulee_par = Auth::user()->email;
+        $facture->motif_refus = $request->motif_refus;
+        $facture->save();
+
+        return redirect()->route('factures.index')->with('flash_message', 'Facture annulée avec succès!');
     }
 
 }

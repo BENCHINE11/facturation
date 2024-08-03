@@ -18,6 +18,19 @@ return new class extends Migration
             $table->unsignedBigInteger('id_poste');
             $table->integer('mois')->default(1); // Nouvelle colonne pour le mois
             $table->integer('annee')->default(2024); // Nouvelle colonne pour l'année
+<<<<<<< HEAD
+<<<<<<< HEAD
+            $table->float('index_mono1');
+            $table->float('index_mono2');
+            $table->float('index_mono3');
+            $table->float('index_triJ');
+            $table->float('index_triN');
+            $table->float('index_triP');
+            $table->float('index_reactif');
+            $table->float('indicateur_max');
+=======
+=======
+>>>>>>> 4a183037c4efa66b878a706948b0260607ed0c1a
             $table->decimal('index_mono1', 15, 2);
             $table->decimal('index_mono2', 15, 2);
             $table->decimal('index_mono3', 15, 2);
@@ -26,6 +39,10 @@ return new class extends Migration
             $table->decimal('index_triP', 15, 2);
             $table->decimal('index_reactif', 15, 2);
             $table->decimal('indicateur_max', 15, 2);
+<<<<<<< HEAD
+>>>>>>> 2649febc5d77b2f9af0ec61abea828ebf65f733c
+=======
+>>>>>>> 4a183037c4efa66b878a706948b0260607ed0c1a
             $table->foreign('id_poste')->references('id')->on('postes');
             $table->timestamps();
         });

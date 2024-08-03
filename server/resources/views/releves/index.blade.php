@@ -10,7 +10,11 @@
                     <div class="card-body w-full">
                         <a href="{{ url('/releves/create') }}" class="btn btn-success btn-sm" title="Ajouter Releve">
                             +Ajouter Nouveau
-                        </a>
+                        </a><br><br>
+                        <form method="GET" action="{{ url('/releves') }}" class="form-inline my-2 my-lg-0 float-right">
+                            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Rechercher" aria-label="Search"><br>
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
+                        </form>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -18,6 +22,8 @@
                                         <th>#</th>
                                         <th>Mois de Consommation</th>
                                         <th>Validé Le</th>
+                                        <th>Client</th>
+                                        <th>Port</th>
                                         <th>Ref Poste</th>
                                         <th>Actions</th>
                                     </tr>
@@ -28,6 +34,8 @@
                                             <td>{{ $releve->id }}</td>
                                             <td>{{ $releve->mois }} / {{ $releve->annee }}</td>
                                             <td>{{ $releve->created_at }}</td>
+                                            <td>{{ $releve->poste->client->raison_sociale }}</td>
+                                            <td>{{ $releve->poste->port->libelle_port }}</td>
                                             <td>{{ $releve->poste->ref_poste }}</td>
                                             <td>
                                                 <a href="{{ url('/releves/' . $releve->id)}}" title="Voir Relevé"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
@@ -39,9 +47,11 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                    
                                 </tbody>
                             </table>
+                            <div class="pagination-wrapper">
+                                {{ $releves->appends(['search' => Request::get('search')])->links('vendor.pagination.bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>

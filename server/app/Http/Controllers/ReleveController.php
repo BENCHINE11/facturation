@@ -14,11 +14,26 @@ class ReleveController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $releves = Releve::orderBy('created_at')->get();
+        $search = $request->get('search');
+        $releves = Releve::when($search, function($query, $search) {
+            return $query->whereHas('poste', function($q) use ($search) {
+                $q->where('ref_poste', 'like', '%' . $search . '%')
+                ->orWhereHas('client', function($q) use ($search) {
+                    $q->where('raison_sociale', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('port', function($q) use ($search) {
+                    $q->where('libelle_port', 'like', '%' . $search . '%');
+                });
+            })
+            ->orWhere('mois', 'like', '%' . $search . '%')
+            ->orWhere('annee', 'like', '%' . $search . '%');
+        })->paginate(10);
+
         return view('releves.index', compact('releves'));
     }
+
 
     /**
      * Show the form for creating a new resource.

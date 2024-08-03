@@ -32,6 +32,18 @@
                 Download PDF
             </a>
 
+            <style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                th, td {
+                    border: 1px solid black;
+                    padding: 8px;
+                    text-align: left;
+                }
+            </style>
+            
             <br>
 
             <div class="container-top">
@@ -42,18 +54,28 @@
                                 <th>N° Facture</th>
                                 <th>Date d'Emission</th>
                                 <th>Statut Facture</th>
+                                @if ($factures->statut=='2')
+                                    <th>Méthode de Paiement</th>
+                                @elseif ($factures->statut=='0')
+                                    <th>Motif d'annulation</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <th>{{ $factures->id }}</th>
-                                <th>{{ $factures->created_at }}</th>
+                                <td>{{ $factures->id }}</td>
+                                <td>{{ $factures->created_at }}</td>
                                 @if ($factures->statut == 0)
-                                    <th style="color: red;">Annulée</th>
+                                    <td style="color: red;">Annulée</td>
                                 @elseif ($factures->statut == 1)
-                                    <th style="color: orange;">Impayée</th>
+                                    <td style="color: yellow;">Non Encaissée</td>
                                 @else
-                                    <th style="color: green;">Réglée</th>
+                                    <td style="color: green;">Encaissée</td>
+                                @endif
+                                @if ($factures->statut=='2')
+                                    <td>{{$factures->mode_reglement}}</td>
+                                @elseif ($factures->statut=='0')
+                                    <td>{{$factures->motif_refus}}</td>
                                 @endif
                             </tr>
                         </tbody>

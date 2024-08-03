@@ -13,10 +13,16 @@ class RegionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $regions = Region::orderBy('code_region')->get();
-        return view('regions.index', compact('regions'));
+        $search = $request->get('search');
+        $regions = Region::when($search, function($query, $search) {
+            return $query->where('code_region', 'like', '%' . $search . '%')
+                        ->orWhere('libelle_region', 'like', '%' . $search . '%');
+        })->paginate(10);
+
+        return view('regions.index')->with('regions', $regions);
+
     }
 
     /**

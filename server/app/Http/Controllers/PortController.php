@@ -14,11 +14,21 @@ class PortController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $ports = Port::orderBy('code_port')->get();
-        return view('ports.index', compact('ports'));
+        $search = $request->get('search');
+        $ports = Port::when($search, function($query, $search) {
+            return $query->where('code_port', 'like', '%' . $search . '%')
+                        ->orWhere('libelle_port', 'like', '%' . $search . '%')
+                        ->orWhereHas('region', function($q) use ($search) {
+                            $q->where('libelle_region', 'like', '%' . $search . '%');
+                        });
+        })->paginate(10);
+
+        return view('ports.index')->with('ports', $ports);
     }
+
 
     /**
      * Show the form for creating a new resource.

@@ -18,10 +18,28 @@ class Facture extends Model
         
         'puissance_appelee',
         'cos_phi',
+
+        'rdps',
+        'v',
+
+        'eaj_actuel',
+        'ean_actuel',
+        'eap_actuel',
+
+        'eaj_ancien',
+        'ean_ancien',
+        'eap_ancien',
+        
         'total_HT',
         'total_TVA',
         'total_TR',
         'total_TTC',
+        
+        'cree_par',
+        'annulee_par',
+        'reglee_par',
+        'mode_reglement',
+        'motif_refus',
     ];
 
     public function releve()
