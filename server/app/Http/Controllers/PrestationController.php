@@ -7,6 +7,7 @@ use App\Models\Prestation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
 class PrestationController extends Controller
 {
     /**
@@ -40,6 +41,7 @@ class PrestationController extends Controller
     {
         $input = $request->all();
         $input['last_modified_by'] = Auth::user()->email; // Enregistrer l'email de l'utilisateur
+
         Prestation::create($input);
         return redirect('prestations')->with('flash_message', 'Prestation Ajoutée!');
     }

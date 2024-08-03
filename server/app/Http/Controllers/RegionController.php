@@ -22,6 +22,7 @@ class RegionController extends Controller
         })->paginate(10);
 
         return view('regions.index')->with('regions', $regions);
+
     }
 
     /**

@@ -18,7 +18,11 @@ return new class extends Migration
             $table->string('code_port')->unique();
             $table->string('libelle_port');
             $table->unsignedBigInteger('id_region');
+<<<<<<< HEAD
             $table->foreign('id_region')->references('id')->on('regions');
+=======
+            $table->foreign('id_region')->references('id')->on('regions')->dele;
+>>>>>>> 4a183037c4efa66b878a706948b0260607ed0c1a
             $table->timestamps();
         });
     }

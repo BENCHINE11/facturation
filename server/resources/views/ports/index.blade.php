@@ -34,11 +34,6 @@
                                             <td>
                                                 <a href="{{ url('/ports/' . $port->id)}}" title="View Port"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
                                                 <a href="{{ url('/ports/' . $port->id . '/edit')}}" title="Edit Port"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
-                                                <!-- <form method="POST" action="{{ url('/ports' . '/' . $port->id) }}" accept-charset="UTF-8" style="display:inline">
-                                                    {{ method_field('DELETE') }}
-                                                    {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete Port" onclick="return confirm('Confirmer suppression?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
-                                                </form> -->
                                             </td>
                                         </tr>
                                     @endforeach

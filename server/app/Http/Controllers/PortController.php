@@ -14,6 +14,7 @@ class PortController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index(Request $request)
     {
         $search = $request->get('search');
@@ -73,11 +74,11 @@ class PortController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-{
-    $ports = Port::find($id);
-    $regions = Region::all(); // Assuming you have a Region model to get all regions
-    return view('ports.edit', compact('ports', 'regions'));
-}
+    {
+        $ports = Port::find($id);
+        $regions = Region::all(); // Assuming you have a Region model to get all regions
+        return view('ports.edit', compact('ports', 'regions'));
+    }
 
     /**
      * Update the specified resource in storage.

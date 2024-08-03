@@ -19,6 +19,9 @@
             ROYAUME DU MAROC <br>
             AGENCE NATIONALE DES PORTS
         </div>
+
+        <br>
+
         <img src="{{ public_path('anp-logo.jpg') }}" alt="anp logo" style="width: 100px; height: auto;">
     </div>
 

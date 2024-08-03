@@ -13,6 +13,7 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index(Request $request)
     {
         $search = $request->get('search');
@@ -25,6 +26,7 @@ class ClientController extends Controller
 
         return view('clients.index')->with('clients', $clients);
     }
+
 
 
     /**

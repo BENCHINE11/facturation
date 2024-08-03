@@ -39,9 +39,4 @@ class Poste extends Model
         return $this->hasMany(Facture::class, 'id_poste');
     }
 
-    public function factures()
-    {
-        return $this->hasMany(Facture::class, 'id_poste');
-    }
-
 }

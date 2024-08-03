@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FactureController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortController;
 use App\Http\Controllers\PosteController;
 use App\Http\Controllers\PrestationController;
@@ -28,8 +27,6 @@ use App\Http\Controllers\AuthController;
 Route::get('/', function(){
     return view('login');
 });
-
-Route::get('/factures/create/{id_releve}', [FactureController::class, 'createFactureFromReleve'])->name('factures.createFromReleve');
 
 Route::get('/login', function () {
     return view('login');
@@ -81,6 +78,7 @@ Route::middleware(['auth:sanctum', 'role:admin,finance'])->group(function(){
     Route::get('/clients', [ClientController::class, 'index']);
     Route::get('/clients/{id}', [ClientController::class, 'show']);
 });
+
 Route::middleware(['auth:sanctum', 'role:facturation,finance'])->resource('/prestations', PrestationController::class);
 Route::middleware(['auth:sanctum', 'role:admin,finance,facturation'])->group(function(){
     Route::get('/factures', [FactureController::class, 'index'])->name('factures.index');

@@ -24,5 +24,5 @@ class DetailsFacture extends Model
     public function facture() {
         return $this->belongsTo(Facture::class, 'id_facture');
     }
-
+    
 }

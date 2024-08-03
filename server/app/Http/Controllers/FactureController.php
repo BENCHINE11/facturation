@@ -91,7 +91,7 @@ class FactureController extends Controller
         if (!$recentReleve) {
             return redirect()->back()->with('error', 'Aucun relevé trouvé. Veuillez ajouter un relevé avant de créer une facture.');
         }
-            
+
         return view('factures.create', compact('postes', 'recentReleve'));
     }
 
@@ -137,10 +137,19 @@ class FactureController extends Controller
             '080104', '080105', '080106', '080112'
         ])->get()->keyBy('code');
 
-        $e_rev_jour = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_jour;
-        $e_rev_nuit = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_nuit;
-        $e_rev_pointe = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_pointe;
 
+        if (!$previousReleve) {
+            $e_rev_jour = ($recentReleve->index_mono1  + $recentReleve->index_mono2  + $recentReleve->index_mono3 ) * $cr_jour;
+            $e_rev_nuit = ($recentReleve->index_mono1  + $recentReleve->index_mono2  + $recentReleve->index_mono3 ) * $cr_nuit;
+            $e_rev_pointe = ($recentReleve->index_mono1  + $recentReleve->index_mono2  + $recentReleve->index_mono3 ) * $cr_pointe;
+
+        }
+        else {
+            $e_rev_jour = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_jour;
+            $e_rev_nuit = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_nuit;
+            $e_rev_pointe = (($recentReleve->index_mono1 - $previousReleve->index_mono1) + ($recentReleve->index_mono2 - $previousReleve->index_mono2) + ($recentReleve->index_mono3 - $previousReleve->index_mono3)) * $cr_pointe;
+        }
+        
         $ccd_globale = 0; // Assuming this needs to be calculated or provided
 
         $cbt_jour = $ccd_globale * $cr_jour;
@@ -181,57 +190,114 @@ class FactureController extends Controller
 
         foreach ($prestations as $prestation) {
             if ( $prestation->code == '080101') {//Energie Active Jour
-                $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_jour;
-                $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_jour;
-                $quantite = $nouvel_index - $ancien_index;
-                $montant_ht = $quantite * $prestation->tarif ;
-                $montant_tva = ($montant_ht * $prestation->taux_TVA) /100;
-    
-                $detailsFacture = DetailsFacture::create([
-                    'id_facture' => $facture->id,
-                    'code_prestation' => $prestation->code,
-                    'quantite' => $quantite,
-                    'montant_ht' => $montant_ht,
-                    'montant_tva' => $montant_tva,
-                    'ancien_index' => $ancien_index,
-                    'nouvel_index' => $nouvel_index,
-                ]);
+
+                if ($previousReleve){
+                    $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_jour;
+                    $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_jour;
+                    $quantite = $nouvel_index - $ancien_index;
+                    $montant_ht = $quantite * $prestation->tarif ;
+                    $montant_tva = ($montant_ht * $prestation->taux_TVA) /100;
+        
+                    $detailsFacture = DetailsFacture::create([
+                        'id_facture' => $facture->id,
+                        'code_prestation' => $prestation->code,
+                        'quantite' => $quantite,
+                        'montant_ht' => $montant_ht,
+                        'montant_tva' => $montant_tva,
+                        'ancien_index' => $ancien_index,
+                        'nouvel_index' => $nouvel_index,
+                    ]);
+                } else {
+                    $ancien_index = 0;
+                    $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_jour;
+                    $quantite = $nouvel_index - $ancien_index;
+                    $montant_ht = $quantite * $prestation->tarif ;
+                    $montant_tva = ($montant_ht * $prestation->taux_TVA) /100;
+        
+                    $detailsFacture = DetailsFacture::create([
+                        'id_facture' => $facture->id,
+                        'code_prestation' => $prestation->code,
+                        'quantite' => $quantite,
+                        'montant_ht' => $montant_ht,
+                        'montant_tva' => $montant_tva,
+                        'ancien_index' => $ancien_index,
+                        'nouvel_index' => $nouvel_index,
+                    ]);
+                }
+                
             }
     
             elseif ( $prestation->code == '080102') { //Energie Active Nuit
-                $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_nuit;
-                $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_nuit;
-                $quantite = $nouvel_index - $ancien_index;
-                $montant_ht = $quantite * $prestation->tarif;
-                $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
-    
-                $detailsFacture = DetailsFacture::create([
-                    'id_facture'=> $facture->id,
-                    'code_prestation' => $prestation->code,
-                    'quantite' => $quantite,
-                    'montant_ht' => $montant_ht,
-                    'montant_tva' => $montant_tva,
-                    'ancien_index' => $ancien_index,
-                    'nouvel_index' => $nouvel_index,
-                ]);
+                if ($previousReleve){
+                    $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_nuit;
+                    $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_nuit;
+                    $quantite = $nouvel_index - $ancien_index;
+                    $montant_ht = $quantite * $prestation->tarif;
+                    $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+        
+                    $detailsFacture = DetailsFacture::create([
+                        'id_facture'=> $facture->id,
+                        'code_prestation' => $prestation->code,
+                        'quantite' => $quantite,
+                        'montant_ht' => $montant_ht,
+                        'montant_tva' => $montant_tva,
+                        'ancien_index' => $ancien_index,
+                        'nouvel_index' => $nouvel_index,
+                    ]);
+                } else {
+                    $ancien_index = 0;
+                    $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_nuit;
+                    $quantite = $nouvel_index - $ancien_index;
+                    $montant_ht = $quantite * $prestation->tarif;
+                    $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+        
+                    $detailsFacture = DetailsFacture::create([
+                        'id_facture'=> $facture->id,
+                        'code_prestation' => $prestation->code,
+                        'quantite' => $quantite,
+                        'montant_ht' => $montant_ht,
+                        'montant_tva' => $montant_tva,
+                        'ancien_index' => $ancien_index,
+                        'nouvel_index' => $nouvel_index,
+                    ]);
+                }
+                
             }
     
             elseif ( $prestation->code == '080121') { //Energie Active Pointe
-                $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_pointe;
-                $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_pointe;
-                $quantite = $nouvel_index - $ancien_index;
-                $montant_ht = $quantite * $prestation->tarif;
-                $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
-    
-                $detailsFacture = DetailsFacture::create([
-                    'id_facture'=> $facture->id,
-                    'code_prestation' => $prestation->code,
-                    'quantite' => $quantite,
-                    'montant_ht' => $montant_ht,
-                    'montant_tva' => $montant_tva,
-                    'ancien_index' => $ancien_index,
-                    'nouvel_index' => $nouvel_index,
-                ]);
+                if ($previousReleve) {
+                    $ancien_index = ($previousReleve->index_mono1 + $previousReleve->index_mono2 + $previousReleve->index_mono3) * $cr_pointe;
+                    $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_pointe;
+                    $quantite = $nouvel_index - $ancien_index;
+                    $montant_ht = $quantite * $prestation->tarif;
+                    $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+        
+                    $detailsFacture = DetailsFacture::create([
+                        'id_facture'=> $facture->id,
+                        'code_prestation' => $prestation->code,
+                        'quantite' => $quantite,
+                        'montant_ht' => $montant_ht,
+                        'montant_tva' => $montant_tva,
+                        'ancien_index' => $ancien_index,
+                        'nouvel_index' => $nouvel_index,
+                    ]);
+                } else {
+                    $ancien_index = 0;
+                    $nouvel_index = ($recentReleve->index_mono1 + $recentReleve->index_mono2 + $recentReleve->index_mono3) * $cr_pointe;
+                    $quantite = $nouvel_index - $ancien_index;
+                    $montant_ht = $quantite * $prestation->tarif;
+                    $montant_tva = ($montant_ht * $prestation->taux_TVA)/100;
+        
+                    $detailsFacture = DetailsFacture::create([
+                        'id_facture'=> $facture->id,
+                        'code_prestation' => $prestation->code,
+                        'quantite' => $quantite,
+                        'montant_ht' => $montant_ht,
+                        'montant_tva' => $montant_tva,
+                        'ancien_index' => $ancien_index,
+                        'nouvel_index' => $nouvel_index,
+                    ]);
+                }
             }
     
             elseif ( $prestation->code == '080103') { //Redevance de Puissance
@@ -361,6 +427,7 @@ class FactureController extends Controller
         return $pdf->download('facture_' . $factures->id . '.pdf');
     }
 
+
     public function showEncaisserForm($id)
     {
         $facture = Facture::findOrFail($id);
@@ -411,8 +478,6 @@ class FactureController extends Controller
 
         return redirect()->route('factures.index')->with('flash_message', 'Facture annulée avec succès!');
     }
-
-
 
 }
 
