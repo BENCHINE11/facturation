@@ -42,7 +42,7 @@
                                                 <form method="POST" action="{{ url('/releves' . '/' . $releve->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce relevé ?');"><i class="fa fa-trash-o" aria-hidden="true"</i> Supprimer</button>                            
                                                 </form>
                                             </td>
                                         </tr>

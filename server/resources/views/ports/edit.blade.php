@@ -18,7 +18,7 @@
                 <option value="{{ $region->id }}" {{ $ports->region->id == $region->id ? 'selected' : '' }}>{{ $region->libelle_region }}</option>
                 @endforeach
             </select><br>
-            <input type="submit" value="Modifier" class="btn btn-success"><br>
+            <input type="submit" value="Modifier" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir modifier ce port ?');"><br>
         </form>    
     </div>
 </div>

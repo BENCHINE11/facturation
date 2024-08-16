@@ -29,7 +29,7 @@
                 @foreach($clients as $client)
                 <option value="{{ $client->id }}" {{ $postes->client->id == $client->id ? 'selected' : '' }}>{{ $client->raison_sociale }}</option>                @endforeach
             </select><br>
-            <input type="submit" value="Modifier" class="btn btn-success"><br>
+            <input type="submit" value="Modifier" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir modifier ce poste ?');"><br>
         </form>    
     </div>
 </div>

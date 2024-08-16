@@ -106,6 +106,10 @@
             @csrf
             <button type="submit">Gestion des utilisateurs</button>
         </form>
+        <form method="GET" action="{{ url('/postes') }}">
+            @csrf
+            <button type="submit">Gestion des postes</button>
+        </form>
         <form method="GET" action="{{ url('/ports') }}">
             @csrf
             <button type="submit">Gestion des ports</button>
@@ -114,13 +118,21 @@
             @csrf
             <button type="submit">Gestion des régions</button>
         </form>
+        <form method="GET" action="{{ url('/prestations') }}">
+            @csrf
+            <button type="submit">Gestion des prestations</button>
+        </form>
         <form method="GET" action="{{ url('/clients') }}">
             @csrf
-            <button type="submit">Consulter les clients</button>
+            <button type="submit">Gestion des clients</button>
+        </form>
+        <form method="GET" action="{{ url('/releves') }}">
+            @csrf
+            <button type="submit">Gestion des relevés</button>
         </form>
         <form method="GET" action="{{ url('/factures') }}">
             @csrf
-            <button type="submit">Consulter les factures</button>
+            <button type="submit">Gestion des factures</button>
         </form>
     </div>
 </body>

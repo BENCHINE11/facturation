@@ -32,8 +32,8 @@
                                             <td>{{ $port->libelle_port }}</td>
                                             <td>{{ $port->region ? $port->region->libelle_region : 'Aucune région' }}</td>
                                             <td>
-                                                <a href="{{ url('/ports/' . $port->id)}}" title="View Port"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
-                                                <a href="{{ url('/ports/' . $port->id . '/edit')}}" title="Edit Port"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
+                                                <a href="{{ url('/ports/' . $port->id)}}" title="Voir Port"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
+                                                <a href="{{ url('/ports/' . $port->id . '/edit')}}" title="Modifier Port"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
                                             </td>
                                         </tr>
                                     @endforeach

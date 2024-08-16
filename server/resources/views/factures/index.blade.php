@@ -66,7 +66,7 @@
                                                 </a>
                                                 <form method="GET" action="{{ url('/factures/annuler/' . $facture->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-warning btn-sm" title="Annuler Facture"><i class="fa fa-ban" aria-hidden="true"></i> Annuler</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Annuler Facture"><i class="fa fa-ban" aria-hidden="true"></i> Annuler</button>
                                                 </form>
                                                 @endif
                                             </td>

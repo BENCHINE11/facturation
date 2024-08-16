@@ -28,7 +28,7 @@
         <div class="card-header">Facture #{{ $factures->id }}</div>
         <div class="card-body">
 
-            <a href="{{ route('factures.downloadPDF', $factures->id) }}" class="btn btn-success" style="margin-bottom: 20px;">
+            <a href="{{ route('factures.downloadPDF', $factures->id) }}" class="btn btn-success" style="margin-bottom: 20px;" onclick="return confirm('Êtes-vous sûr de vouloir télécharger cette facture ?');">
                 Download PDF
             </a>
 

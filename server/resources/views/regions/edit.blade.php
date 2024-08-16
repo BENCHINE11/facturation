@@ -14,7 +14,7 @@
             <input type="text" name="libelle_region" id="libelle_region" value="{{ $regions->libelle_region}}" class="form-control"><br>
             <label for="">Taxe Regionale</label>
             <input type="text" name="taxe_regionale" id="taxe_regionale" value="{{ $regions->taxe_regionale}}" class="form-control"><br>
-            <input type="submit" value="Modifier" class="btn btn-success"><br>
+            <input type="submit" value="Modifier" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir modifier cette region ?');"><br>
         </form>    
     </div>
 </div>

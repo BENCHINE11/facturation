@@ -32,12 +32,12 @@
                                             <td>{{ $prestation->tarif }}</td>
                                             <td>{{ $prestation->taux_TVA }} %</td>
                                             <td>
-                                                <a href="{{ url('/prestations/' . $prestation->id)}}" title="Voir Relevé"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>                                                
+                                                <a href="{{ url('/prestations/' . $prestation->id)}}" title="Voir Prestation"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>                                                
                                                 <a href="{{ url('/prestations/' . $prestation->id . '/edit')}}" title="Modifier Prestation"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
                                                 <form method="POST" action="{{ url('/prestations' . '/' . $prestation->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé" onclick="return confirm('Confirmer supression?');"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Supprimer Relevé" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette prestation ?');"><i class="fa fa-trash-o" aria-hidden="true"></i> Supprimer</button>                            
                                                 </form>
                                             </td>
                                         </tr>

@@ -20,7 +20,7 @@
             <input type="tel" name="telephone" id="telephone" value="{{ $clients->telephone}}" class="form-control"><br>
             <label for="">Adresse</label>
             <input type="text" name="adresse" id="adresse" value="{{ $clients->adresse}}" class="form-control"><br>
-            <input type="submit" value="Modifier" class="btn btn-success"><br>
+            <input type="submit" value="Modifier" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir modifier ce client ?');"><br>
         </form>    
     </div>
 </div>

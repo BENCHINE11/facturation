@@ -18,11 +18,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('libelle');
             $table->string('unite');
-<<<<<<< HEAD
-            $table->double('tarif',8,4);
-=======
             $table->double('tarif', 8, 4);
->>>>>>> 4a183037c4efa66b878a706948b0260607ed0c1a
             $table->float('taux_TVA');
             $table->timestamps();
         });

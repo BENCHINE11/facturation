@@ -38,14 +38,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
     Route::get('/admin-dashboard', function () {
         return view('admin-dashboard');
     })->name('admin.dashboard');
-    Route::resource('/users', UserController::class);
+    
     Route::patch('/users/{id}', [UserController::class, 'updateEtat']);
     Route::delete('/users/delete/{id}', [UserController::class, 'deleteUser']);
     Route::resource('/regions', RegionController::class);
     Route::resource('/ports', PortController::class);
 });
 
-Route::middleware(['auth:sanctum', 'role:finance'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:finance,admin'])->group(function () {
     Route::get('/finance-dashboard', function () {
         return view('finance-dashboard');
     })->name('finance.dashboard');
@@ -54,16 +54,18 @@ Route::middleware(['auth:sanctum', 'role:finance'])->group(function () {
     Route::resource('/postes', PosteController::class);
     Route::get('/factures/encaisser/{id}', [FactureController::class, 'showEncaisserForm'])->name('factures.encaisser.form');
     Route::post('/factures/encaisser/{id}', [FactureController::class, 'encaisser'])->name('factures.encaisser');
+    Route::get('/clients', [ClientController::class, 'index']);
+    Route::get('/clients/{id}', [ClientController::class, 'show']);
 });
 
-Route::middleware(['auth:sanctum', 'role:infra'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:infra,admin'])->group(function () {
     Route::get('/infra-dashboard', function () {
         return view('infra-dashboard');
     })->name('infra.dashboard');
     Route::resource('/releves', ReleveController::class);
 });
 
-Route::middleware(['auth:sanctum', 'role:facturation'])->group(function () {
+Route::middleware(['auth:sanctum', 'role:facturation,admin'])->group(function () {
     Route::get('/facturation-dashboard', function () {
         return view('facturation-dashboard');
     })->name('facturation.dashboard');
@@ -74,15 +76,16 @@ Route::middleware(['auth:sanctum', 'role:facturation'])->group(function () {
 });
 
 // Route index accessible aux administrateurs et aux finance
-Route::middleware(['auth:sanctum', 'role:admin,finance'])->group(function(){
-    Route::get('/clients', [ClientController::class, 'index']);
-    Route::get('/clients/{id}', [ClientController::class, 'show']);
-});
+// Route::middleware(['auth:sanctum', 'role:admin,finance'])->group(function(){
+//     Route::get('/clients', [ClientController::class, 'index']);
+//     Route::get('/clients/{id}', [ClientController::class, 'show']);
+// });
 
-Route::middleware(['auth:sanctum', 'role:facturation,finance'])->resource('/prestations', PrestationController::class);
+Route::middleware(['auth:sanctum', 'role:facturation, finance, admin'])->resource('/prestations', PrestationController::class);
 Route::middleware(['auth:sanctum', 'role:admin,finance,facturation'])->group(function(){
     Route::get('/factures', [FactureController::class, 'index'])->name('factures.index');
     Route::get('/factures/annulees', [FactureController::class, 'indexAnnulee'])->name('factures.annulees');
     Route::get('/factures/{id}', [FactureController::class, 'show']);
 });
 
+Route::resource('/users', UserController::class);

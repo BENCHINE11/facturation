@@ -24,7 +24,9 @@ class PortController extends Controller
                         ->orWhereHas('region', function($q) use ($search) {
                             $q->where('libelle_region', 'like', '%' . $search . '%');
                         });
-        })->paginate(10);
+        })
+        ->orderBy('code_port', 'asc')
+        ->paginate(10);
 
         return view('ports.index')->with('ports', $ports);
     }

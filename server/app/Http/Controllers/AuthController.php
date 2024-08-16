@@ -71,6 +71,7 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    
     public function logout(Request $request)
     {
         //$request->user()->currentAccessToken()->delete();

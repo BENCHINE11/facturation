@@ -32,8 +32,8 @@
                                             <td>{{ $region->libelle_region }}</td>
                                             <td>{{ $region->taxe_regionale }}</td>
                                             <td>
-                                                <a href="{{ url('/regions/' . $region->id)}}" title="View Region"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Afficher</button></a>
-                                                <a href="{{ url('/regions/' . $region->id . '/edit')}}" title="Edit Region"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
+                                                <a href="{{ url('/regions/' . $region->id)}}" title="Voir Region"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i>Voir</button></a>
+                                                <a href="{{ url('/regions/' . $region->id . '/edit')}}" title="Mdifier Region"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>Modifier</button></a>
                                                 
                                             </td>
                                         </tr>

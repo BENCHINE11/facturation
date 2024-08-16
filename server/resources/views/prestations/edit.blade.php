@@ -18,7 +18,7 @@
             <input type="text" name="tarif" id="tarif" value="{{ $prestations->tarif}}" class="form-control"><br>
             <label for="">Taux TVA</label>
             <input type="tel" name="taux_TVA" id="taux_TVA" value="{{ $prestations->taux_TVA}}" class="form-control"><br>
-            <input type="submit" value="Update" class="btn btn-success"><br>
+            <input type="submit" value="Update" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir modifier cette prestation ?');"><br>
         </form>    
     </div>
 </div>
